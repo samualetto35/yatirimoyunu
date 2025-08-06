@@ -1,0 +1,111 @@
+.header {
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.logo {
+  cursor: pointer;
+}
+
+.logo h2 {
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-button {
+  background-color: white;
+  border: 1px solid #d0d0d0;
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.nav-button:hover {
+  background-color: #f8f8f8;
+  border-color: #b0b0b0;
+  transform: translateY(-1px);
+}
+
+.nav-button:active {
+  transform: translateY(0);
+}
+
+.nav-button.logout {
+  color: #d32f2f;
+  border-color: #ffcdd2;
+}
+
+.nav-button.logout:hover {
+  background-color: #ffebee;
+  border-color: #ef5350;
+}
+
+.nav-button.register {
+  background-color: #111;
+  color: #fff;
+  border: 1px solid #111;
+}
+
+.nav-button.register:hover {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+}
+
+.user-email {
+  color: #666;
+  font-size: 0.9rem;
+  margin-right: 1rem;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 0 1rem;
+  }
+  .header-content {
+    padding: 0.5rem 0;
+  }
+  .logo h2 {
+    font-size: 0.95rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+  .nav-button {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 14px;
+    min-width: 70px;
+  }
+  .user-email {
+    font-size: 0.8rem;
+    margin-right: 0.3rem;
+  }
+  .nav-buttons {
+    gap: 0.3rem;
+  }
+} 

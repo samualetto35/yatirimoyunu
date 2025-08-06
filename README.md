@@ -1,46 +1,170 @@
-# Getting Started with Create React App
+# Yatırım Oyunu - React Authentication App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Bu proje, Firebase Authentication kullanarak kullanıcı kayıt, giriş ve e-posta doğrulama özelliklerini içeren modern bir React uygulamasıdır.
 
-## Available Scripts
+## Özellikler
 
-In the project directory, you can run:
+- ✅ Kullanıcı kayıt ve giriş
+- ✅ E-posta doğrulama (OTP ve link ile)
+- ✅ Güvenli rota koruması
+- ✅ Modern, temiz tasarım
+- ✅ Responsive tasarım
+- ✅ Türkçe arayüz
+- ✅ Detaylı log mesajları
+- ✅ Supabase Database entegrasyonu
+- ✅ Otomatik kullanıcı kayıt sistemi
 
-### `npm start`
+## Kurulum
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 1. Firebase Projesi Oluşturma
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+1. [Firebase Console](https://console.firebase.google.com/)'a gidin
+2. Yeni proje oluşturun
+3. Authentication'ı etkinleştirin
+4. Email/Password sağlayıcısını etkinleştirin
+5. Proje ayarlarından Firebase config bilgilerini alın
 
-### `npm test`
+### 2. Firebase Konfigürasyonu
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`src/firebase.ts` dosyasını düzenleyin:
 
-### `npm run build`
+```typescript
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Supabase Projesi Oluşturma
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. [Supabase Console](https://supabase.com/)'a gidin
+2. Yeni proje oluşturun
+3. SQL Editor'da `database-setup.sql` dosyasındaki SQL'i çalıştırın
+4. Proje ayarlarından API anahtarlarını alın
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 4. Supabase Konfigürasyonu
 
-### `npm run eject`
+`src/supabase.ts` dosyasını düzenleyin:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```typescript
+const supabaseUrl = 'YOUR_SUPABASE_URL';
+const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 5. Market Verilerini Import Etme
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. Supabase Dashboard'da Table Editor'a gidin
+2. `market` tablosunu seçin
+3. `market_rows.csv` dosyasını import edin
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 6. Bağımlılıkları Yükleme
 
-## Learn More
+```bash
+npm install
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 7. Uygulamayı Çalıştırma
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
+
+Uygulama http://localhost:3000 adresinde çalışacaktır.
+
+## Database Yapısı
+
+### Market Tablosu
+- CSV'den import edilen market verileri
+- Yatırım araçları ve fiyat geçmişi
+
+### User Progress Tablosu
+- Kullanıcı bakiyeleri (t0btl, t0stl, t1stl, ...)
+- Otomatik olarak yeni kullanıcılar için oluşturulur
+
+### User Entries Tablosu
+- Kullanıcı yüzde tercihleri (t0percent, t1percent, ...)
+- Gelecekteki hesaplamalar için kullanılacak
+
+## Kullanım
+
+### Kayıt Olma
+1. Ana sayfada "Kayıt Ol" butonuna tıklayın
+2. E-posta ve şifre bilgilerinizi girin
+3. Kayıt işlemi tamamlandıktan sonra database kayıtları otomatik oluşturulur
+4. E-posta doğrulama sayfasına yönlendirileceksiniz
+
+### E-posta Doğrulama
+1. E-postanızı kontrol edin
+2. Doğrulama linkine tıklayın
+3. Doğrulama tamamlandıktan sonra kullanıcı sayfasına yönlendirileceksiniz
+
+### Giriş Yapma
+1. "Oturum Aç" butonuna tıklayın
+2. E-posta ve şifre bilgilerinizi girin
+3. Başarılı giriş sonrası kullanıcı sayfasına yönlendirileceksiniz
+
+## Proje Yapısı
+
+```
+src/
+├── components/
+│   ├── Header.tsx          # Navigasyon başlığı
+│   ├── Login.tsx           # Giriş sayfası
+│   ├── Register.tsx        # Kayıt sayfası
+│   ├── VerifyEmail.tsx     # E-posta doğrulama
+│   ├── UserPage.tsx        # Kullanıcı sayfası
+│   ├── PrivateRoute.tsx    # Korumalı rota
+│   ├── Header.css          # Başlık stilleri
+│   ├── Auth.css            # Kimlik doğrulama stilleri
+│   └── UserPage.css        # Kullanıcı sayfası stilleri
+├── contexts/
+│   └── AuthContext.tsx     # Kimlik doğrulama bağlamı
+├── services/
+│   └── databaseService.ts  # Database servisleri
+├── firebase.ts             # Firebase konfigürasyonu
+├── supabase.ts             # Supabase konfigürasyonu
+├── App.tsx                 # Ana uygulama bileşeni
+└── App.css                 # Ana uygulama stilleri
+```
+
+## Güvenlik Özellikleri
+
+- E-posta doğrulama zorunlu
+- Güçlü şifre gereksinimleri
+- Oturum yönetimi
+- Korumalı rotalar
+- Hata mesajları ve loglama
+- Database güvenliği
+
+## Teknolojiler
+
+- React 18
+- TypeScript
+- Firebase Authentication
+- Supabase Database
+- React Router DOM
+- CSS3
+
+## Geliştirme
+
+### Log Mesajları
+Uygulama, tüm kimlik doğrulama işlemlerini konsola loglar:
+- Kayıt denemeleri
+- Giriş denemeleri
+- E-posta doğrulama işlemleri
+- Database işlemleri
+- Hata durumları
+
+### Hata Yönetimi
+- Kullanıcı dostu hata mesajları
+- Firebase hata kodlarının Türkçe çevirileri
+- Database hata yönetimi
+- Başarı mesajları
+
+## Lisans
+
+MIT

@@ -1,0 +1,142 @@
+.user-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
+}
+
+.user-info {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.user-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.logout-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+.test-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.test-section h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #495057;
+}
+
+.test-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.test-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.test-button:hover {
+  background-color: #0056b3;
+}
+
+.security-info {
+  background-color: #e7f3ff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid #b3d9ff;
+}
+
+.security-info h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #0056b3;
+}
+
+.security-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.security-info code {
+  background-color: #f8f9fa;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.account-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.account-info h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #495057;
+  font-size: 1rem;
+}
+
+.account-info p {
+  margin: 0.4rem 0;
+  font-size: 0.85rem;
+}
+
+.account-info code {
+  background-color: #e9ecef;
+  padding: 0.15rem 0.3rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #495057;
+}
+
+@media (max-width: 600px) {
+  .user-page {
+    padding: 1rem;
+  }
+  
+  .test-buttons {
+    gap: 0.5rem;
+  }
+  
+  .test-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+  }
+} 
