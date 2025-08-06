@@ -1,33 +1,51 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/Header';
+import AuthenticatedHeader from './components/AuthenticatedHeader';
+import Sidebar from './components/Sidebar';
 import Login from './components/Login';
 import Register from './components/Register';
 import VerifyEmail from './components/VerifyEmail';
-import UserPage from './components/UserPage';
-import HomePage from './components/HomePage';
-import LandingPage from './components/LandingPage';
-import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './components/ForgotPassword';
+import UserPage from './components/UserPage';
+import LandingPage from './components/LandingPage';
+import Dashboard from './components/Dashboard';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
 function AppContent() {
   const location = useLocation();
+  const { currentUser } = useAuth();
+
   // Header'ı login, register, verify-email ve forgot-password sayfalarında gizle
   const hideHeader = ["/login", "/register", "/verify-email", "/forgot-password"].includes(location.pathname);
+
+  // Giriş yapmış kullanıcılar için authenticated header göster
+  const showAuthenticatedHeader = currentUser && !hideHeader && ["/user", "/dashboard", "/investments", "/ranking", "/community"].includes(location.pathname);
+
+  // Giriş yapmamış kullanıcılar için normal header göster
+  const showNormalHeader = !currentUser && !hideHeader;
+
+  // Auth sayfaları için özel class
+  const isAuthPage = hideHeader;
+
+  // Authenticated kullanıcılar için class
+  const isAuthenticated = currentUser && !hideHeader;
+
   return (
-    <div className="App">
-      {!hideHeader && <Header />}
+    <div className={`App ${isAuthPage ? 'auth-page' : ''} ${isAuthenticated ? 'authenticated' : ''}`}>
+      {showAuthenticatedHeader && <AuthenticatedHeader />}
+      {showNormalHeader && <Header />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/home" element={
+        <Route path="/dashboard" element={
           <PrivateRoute>
-            <HomePage />
+            <Dashboard />
           </PrivateRoute>
         } />
         <Route path="/user" element={

@@ -29,7 +29,7 @@ const VerifyEmail: React.FC = () => {
       // Email doğrulandıysa database kayıtları oluştur
       handleEmailVerified();
       setTimeout(() => {
-        navigate('/home'); // /user yerine /home'a yönlendir
+        navigate('/dashboard'); // /user yerine /dashboard'a yönlendir
       }, 2000);
     } else {
       console.log('⚠️ [VERIFY] Email not yet verified');
@@ -56,6 +56,7 @@ const VerifyEmail: React.FC = () => {
       
       // Başarı mesajını güncelle
       setSuccess('E-posta doğrulama başarılı! Database kayıtları oluşturuldu.');
+      
     } catch (error) {
       console.error('❌ [VERIFY] Error creating database records:', error);
       setError('Database kayıtları oluşturulamadı. Lütfen daha sonra tekrar deneyin.');
@@ -96,7 +97,7 @@ const VerifyEmail: React.FC = () => {
         await handleEmailVerified();
         
         setTimeout(() => {
-          navigate('/home'); // /user yerine /home'a yönlendir
+          navigate('/dashboard'); // /user yerine /dashboard'a yönlendir
         }, 2000);
       } else {
         console.log('⚠️ [VERIFY] Email not yet verified');
@@ -133,11 +134,11 @@ const VerifyEmail: React.FC = () => {
             <strong>💡 Önemli:</strong> E-posta spam/gereksiz klasörünüzü de kontrol edin!
           </div>
         </div>
-
+        
         <div className="verification-buttons">
           <button 
             type="button" 
-            className="auth-button" 
+            className="auth-button"
             onClick={handleCheckVerification}
             disabled={loading}
           >
@@ -147,9 +148,9 @@ const VerifyEmail: React.FC = () => {
             <button 
               type="button" 
               className="auth-button secondary" 
-              onClick={() => navigate('/user')}
+              onClick={() => navigate('/dashboard')}
             >
-              Kullanıcı Sayfasına Git
+              Dashboard'a Git
             </button>
           )}
         </div>

@@ -2,8 +2,10 @@
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   padding: 0 2rem;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 }
 
@@ -88,18 +90,17 @@
     padding: 0 1rem;
   }
   .header-content {
-    padding: 0.5rem 0;
+    padding: 1rem 0;
   }
   .logo h2 {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     padding-left: 0.2rem;
     padding-right: 0.2rem;
   }
   .nav-button {
     font-size: 0.85rem;
-    padding: 0.4rem 0.7rem;
-    border-radius: 14px;
-    min-width: 70px;
+    padding: 0.6rem 1.2rem;
+    min-width: 90px;
   }
   .user-email {
     font-size: 0.8rem;

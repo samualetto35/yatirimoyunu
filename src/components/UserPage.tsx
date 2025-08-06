@@ -1,42 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { DatabaseService } from '../services/databaseService';
 import './UserPage.css';
 
 const UserPage: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
 
-  useEffect(() => {
-    console.log('User page loaded for:', currentUser?.email);
-    
-    // Kullanıcı sayfası yüklendiğinde otomatik olarak kayıtları kontrol et
-    if (currentUser) {
-      console.log('🔍 [AUTO] Automatically checking user records on page load...');
-      setTimeout(async () => {
-        await checkUserRecords();
-      }, 500);
-    }
-  }, [currentUser]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-
-  const testSupabaseConnection = async () => {
-    try {
-      console.log('🧪 [TEST] Testing Supabase connection...');
-      await DatabaseService.testSupabaseConnection();
-      console.log('✅ [TEST] Supabase connection test completed');
-    } catch (error) {
-      console.error('❌ [TEST] Supabase connection test failed:', error);
-    }
-  };
-
-  const checkUserRecords = async () => {
+  const checkUserRecords = useCallback(async () => {
     if (!currentUser) return;
     
     try {
@@ -63,6 +33,28 @@ const UserPage: React.FC = () => {
       
     } catch (error) {
       console.error('❌ [TEST] Error checking user records:', error);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    console.log('User page loaded for:', currentUser?.email);
+    
+    // Kullanıcı sayfası yüklendiğinde otomatik olarak kayıtları kontrol et
+    if (currentUser) {
+      console.log('🔍 [AUTO] Automatically checking user records on page load...');
+      setTimeout(async () => {
+        await checkUserRecords();
+      }, 500);
+    }
+  }, [currentUser, checkUserRecords]);
+
+  const testSupabaseConnection = async () => {
+    try {
+      console.log('🧪 [TEST] Testing Supabase connection...');
+      await DatabaseService.testSupabaseConnection();
+      console.log('✅ [TEST] Supabase connection test completed');
+    } catch (error) {
+      console.error('❌ [TEST] Supabase connection test failed:', error);
     }
   };
 
@@ -96,10 +88,6 @@ const UserPage: React.FC = () => {
             new Date(currentUser.metadata.creationTime).toLocaleString('tr-TR') : 'Bilinmiyor'}</p>
         </div>
       </div>
-      
-      <button onClick={handleLogout} className="logout-button">
-        Çıkış Yap
-      </button>
 
       {/* Test Butonları */}
       <div className="test-section">

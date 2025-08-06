@@ -16,15 +16,16 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       await login(email, password);
-      console.log('Login successful, navigating to home page');
-      navigate('/home'); // /user yerine /home'a yönlendir
+      console.log('Login successful, navigating to dashboard');
+      navigate('/dashboard'); // /user yerine /dashboard'a yönlendir
     } catch (error: any) {
       console.error('Login failed:', error.message);
-      setError(error.message);
+      setError(getErrorMessage(error.code));
     } finally {
       setLoading(false);
     }
@@ -104,6 +105,7 @@ const Login: React.FC = () => {
             Şifremi Unuttum
           </button>
         </form>
+        
         <div className="auth-links">
           <Link to="/register">Hesabınız yok mu? Kayıt olun</Link>
         </div>

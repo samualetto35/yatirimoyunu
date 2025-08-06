@@ -25,18 +25,9 @@ const Header: React.FC = () => {
         </div>
         <div className="nav-buttons">
           {currentUser ? (
-            <>
-              <span className="user-email">{currentUser.email}</span>
-              <button className="nav-button" onClick={() => navigate('/home')}>
-                Ana Sayfa
-              </button>
-              <button className="nav-button" onClick={() => navigate('/user')}>
-                Profil
-              </button>
-              <button className="nav-button logout" onClick={handleLogout}>
-                Çıkış Yap
-              </button>
-            </>
+            <button className="nav-button logout" onClick={handleLogout}>
+              Çıkış Yap
+            </button>
           ) : (
             <>
               <button className="nav-button" onClick={() => navigate('/login')}>

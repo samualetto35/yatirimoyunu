@@ -1,6 +1,22 @@
 .App {
   background-color: white;
   min-height: 100vh;
+  width: 100%;
+}
+
+/* Auth sayfaları için padding-top'ı kaldır */
+.App.auth-page {
+  padding-top: 0;
+}
+
+/* Normal sayfalar için padding-top - Header yüksekliği ile uyumlu */
+.App:not(.auth-page) {
+  padding-top: 70px; /* Desktop header yüksekliği */
+}
+
+/* Signed-in kullanıcılar için authenticated header yüksekliği */
+.App.authenticated {
+  padding-top: 70px; /* Desktop authenticated header */
 }
 
 .content {
@@ -9,6 +25,13 @@
   max-width: 800px;
   margin: 0 auto;
   padding-top: 4rem;
+}
+
+.content-with-sidebar {
+  margin-left: 250px;
+  padding: 2rem;
+  min-height: calc(100vh - 70px);
+  padding-top: 2rem;
 }
 
 .content h1 {
@@ -22,4 +45,36 @@
   color: #666;
   font-size: 1.2rem;
   line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* Auth olmayan kullanıcılar için daha az padding */
+  .App:not(.auth-page):not(.authenticated) {
+    padding-top: 80px; /* Normal header için daha az */
+  }
+  
+  /* Signed-in kullanıcılar için mevcut padding */
+  .App.authenticated {
+    padding-top: 120px; /* Mobile authenticated header yüksekliği (2 satır) */
+  }
+  
+  .content-with-sidebar {
+    margin-left: 0;
+    margin-bottom: 80px; /* Mobile nav için alan */
+    margin-top: 120px; /* Mobile second header için alan */
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Auth olmayan kullanıcılar için daha az padding */
+  .App:not(.auth-page):not(.authenticated) {
+    padding-top: 70px; /* Normal header için daha az */
+  }
+  
+  /* Signed-in kullanıcılar için mevcut padding */
+  .App.authenticated {
+    padding-top: 110px; /* Daha küçük ekranlar için */
+  }
 }
