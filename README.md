@@ -1,170 +1,140 @@
-# Yatırım Oyunu - React Authentication App
+# Yatirim Oyunu 1.0 🎯
 
-Bu proje, Firebase Authentication kullanarak kullanıcı kayıt, giriş ve e-posta doğrulama özelliklerini içeren modern bir React uygulamasıdır.
+Modern web teknolojileri ile geliştirilmiş yatırım oyunu. Firebase Authentication ve Supabase Database kullanarak güvenli ve ölçeklenebilir bir sistem.
 
-## Özellikler
+## 🚀 Özellikler
 
-- ✅ Kullanıcı kayıt ve giriş
-- ✅ E-posta doğrulama (OTP ve link ile)
-- ✅ Güvenli rota koruması
-- ✅ Modern, temiz tasarım
-- ✅ Responsive tasarım
-- ✅ Türkçe arayüz
-- ✅ Detaylı log mesajları
-- ✅ Supabase Database entegrasyonu
-- ✅ Otomatik kullanıcı kayıt sistemi
+### **Authentication & Security**
+- ✅ Firebase Authentication
+- ✅ Email verification
+- ✅ Password reset
+- ✅ Protected routes
+- ✅ Multi-user support
 
-## Kurulum
+### **Database & Data Management**
+- ✅ Supabase PostgreSQL
+- ✅ User progress tracking
+- ✅ Investment entries
+- ✅ Market data integration
+- ✅ Row Level Security (RLS)
 
-### 1. Firebase Projesi Oluşturma
+### **UI/UX**
+- ✅ Modern responsive design
+- ✅ Mobile-friendly interface
+- ✅ Turkish language support
+- ✅ Real-time feedback
+- ✅ Loading states
 
-1. [Firebase Console](https://console.firebase.google.com/)'a gidin
-2. Yeni proje oluşturun
-3. Authentication'ı etkinleştirin
-4. Email/Password sağlayıcısını etkinleştirin
-5. Proje ayarlarından Firebase config bilgilerini alın
+## 🛠️ Teknoloji Stack
 
-### 2. Firebase Konfigürasyonu
+- **Frontend:** React.js + TypeScript
+- **Authentication:** Firebase Auth
+- **Database:** Supabase PostgreSQL
+- **Routing:** React Router DOM
+- **Styling:** CSS3 + Media Queries
+- **State Management:** React Context API
 
-`src/firebase.ts` dosyasını düzenleyin:
+## 📊 Database Yapısı
 
-```typescript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+### **Tables:**
+- `market` - Market verileri (CSV import)
+- `user_progress` - Kullanıcı ilerleme verileri
+- `user_entries` - Kullanıcı yatırım girişleri
+
+### **Security:**
+- Row Level Security (RLS) policies
+- Firebase UID filtering
+- Email verification required
+
+## 🚀 Kurulum
+
+### **1. Repository'yi Klonlayın:**
+```bash
+git clone https://github.com/YOUR_USERNAME/yatirimoyunu.git
+cd yatirimoyunu
 ```
 
-### 3. Supabase Projesi Oluşturma
-
-1. [Supabase Console](https://supabase.com/)'a gidin
-2. Yeni proje oluşturun
-3. SQL Editor'da `database-setup.sql` dosyasındaki SQL'i çalıştırın
-4. Proje ayarlarından API anahtarlarını alın
-
-### 4. Supabase Konfigürasyonu
-
-`src/supabase.ts` dosyasını düzenleyin:
-
-```typescript
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
-```
-
-### 5. Market Verilerini Import Etme
-
-1. Supabase Dashboard'da Table Editor'a gidin
-2. `market` tablosunu seçin
-3. `market_rows.csv` dosyasını import edin
-
-### 6. Bağımlılıkları Yükleme
-
+### **2. Dependencies'leri Yükleyin:**
 ```bash
 npm install
 ```
 
-### 7. Uygulamayı Çalıştırma
+### **3. Environment Variables:**
+`.env` dosyası oluşturun:
+```env
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+REACT_APP_SUPABASE_URL=your_supabase_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
+### **4. Database Setup:**
+Supabase SQL Editor'da `user-progress-entries-setup.sql` dosyasını çalıştırın.
+
+### **5. Uygulamayı Başlatın:**
 ```bash
 npm start
 ```
 
-Uygulama http://localhost:3000 adresinde çalışacaktır.
+## 📱 Kullanım
 
-## Database Yapısı
+### **Kayıt Olma:**
+1. `/register` sayfasına gidin
+2. Email ve şifre girin
+3. Email doğrulamasını yapın
 
-### Market Tablosu
-- CSV'den import edilen market verileri
-- Yatırım araçları ve fiyat geçmişi
+### **Giriş Yapma:**
+1. `/login` sayfasına gidin
+2. Email ve şifre girin
+3. Dashboard'a yönlendirilirsiniz
 
-### User Progress Tablosu
-- Kullanıcı bakiyeleri (t0btl, t0stl, t1stl, ...)
-- Otomatik olarak yeni kullanıcılar için oluşturulur
+### **Kullanıcı Dashboard:**
+- `/user` sayfasında kendi verilerinizi görün
+- Otomatik kayıt oluşturma
+- Güvenli veri izolasyonu
 
-### User Entries Tablosu
-- Kullanıcı yüzde tercihleri (t0percent, t1percent, ...)
-- Gelecekteki hesaplamalar için kullanılacak
+## 🔒 Güvenlik
 
-## Kullanım
+- **Authentication:** Firebase Auth ile güvenli kimlik doğrulama
+- **Authorization:** Protected routes ile sayfa erişim kontrolü
+- **Data Isolation:** Her kullanıcı sadece kendi verilerini görür
+- **Database Security:** RLS policies ile veri güvenliği
 
-### Kayıt Olma
-1. Ana sayfada "Kayıt Ol" butonuna tıklayın
-2. E-posta ve şifre bilgilerinizi girin
-3. Kayıt işlemi tamamlandıktan sonra database kayıtları otomatik oluşturulur
-4. E-posta doğrulama sayfasına yönlendirileceksiniz
+## 📈 Versiyon Geçmişi
 
-### E-posta Doğrulama
-1. E-postanızı kontrol edin
-2. Doğrulama linkine tıklayın
-3. Doğrulama tamamlandıktan sonra kullanıcı sayfasına yönlendirileceksiniz
+### **v1.0 - Initial Release**
+- ✅ Firebase Authentication sistemi
+- ✅ Supabase Database entegrasyonu
+- ✅ User progress & entries management
+- ✅ Protected routes & user dashboard
+- ✅ Mobile responsive design
+- ✅ Turkish language support
+- ✅ Automatic database record creation
+- ✅ Multi-user support & security
 
-### Giriş Yapma
-1. "Oturum Aç" butonuna tıklayın
-2. E-posta ve şifre bilgilerinizi girin
-3. Başarılı giriş sonrası kullanıcı sayfasına yönlendirileceksiniz
+## 🤝 Katkıda Bulunma
 
-## Proje Yapısı
+1. Fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit edin (`git commit -m 'Add amazing feature'`)
+4. Push edin (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun
 
-```
-src/
-├── components/
-│   ├── Header.tsx          # Navigasyon başlığı
-│   ├── Login.tsx           # Giriş sayfası
-│   ├── Register.tsx        # Kayıt sayfası
-│   ├── VerifyEmail.tsx     # E-posta doğrulama
-│   ├── UserPage.tsx        # Kullanıcı sayfası
-│   ├── PrivateRoute.tsx    # Korumalı rota
-│   ├── Header.css          # Başlık stilleri
-│   ├── Auth.css            # Kimlik doğrulama stilleri
-│   └── UserPage.css        # Kullanıcı sayfası stilleri
-├── contexts/
-│   └── AuthContext.tsx     # Kimlik doğrulama bağlamı
-├── services/
-│   └── databaseService.ts  # Database servisleri
-├── firebase.ts             # Firebase konfigürasyonu
-├── supabase.ts             # Supabase konfigürasyonu
-├── App.tsx                 # Ana uygulama bileşeni
-└── App.css                 # Ana uygulama stilleri
-```
+## 📄 Lisans
 
-## Güvenlik Özellikleri
+Bu proje MIT lisansı altında lisanslanmıştır.
 
-- E-posta doğrulama zorunlu
-- Güçlü şifre gereksinimleri
-- Oturum yönetimi
-- Korumalı rotalar
-- Hata mesajları ve loglama
-- Database güvenliği
+## 📞 İletişim
 
-## Teknolojiler
+- **Developer:** [Your Name]
+- **Email:** [your.email@example.com]
+- **GitHub:** [@your-username]
 
-- React 18
-- TypeScript
-- Firebase Authentication
-- Supabase Database
-- React Router DOM
-- CSS3
+---
 
-## Geliştirme
-
-### Log Mesajları
-Uygulama, tüm kimlik doğrulama işlemlerini konsola loglar:
-- Kayıt denemeleri
-- Giriş denemeleri
-- E-posta doğrulama işlemleri
-- Database işlemleri
-- Hata durumları
-
-### Hata Yönetimi
-- Kullanıcı dostu hata mesajları
-- Firebase hata kodlarının Türkçe çevirileri
-- Database hata yönetimi
-- Başarı mesajları
-
-## Lisans
-
-MIT
+**Yatirim Oyunu 1.0** - Modern web teknolojileri ile geliştirilmiş güvenli yatırım oyunu platformu. 🚀
