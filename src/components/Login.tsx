@@ -15,28 +15,16 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Lütfen tüm alanları doldurun');
-      return;
-    }
+    setError('');
+    setLoading(true);
 
     try {
-      setError('');
-      setSuccess('');
-      setLoading(true);
-      console.log('Login attempt for:', email);
-      
       await login(email, password);
-      setSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
-      console.log('Login successful, navigating to user page');
-      
-      setTimeout(() => {
-        navigate('/user');
-      }, 1500);
+      console.log('Login successful, navigating to home page');
+      navigate('/home'); // /user yerine /home'a yönlendir
     } catch (error: any) {
-      console.error('Login error:', error.message);
-      setError(getErrorMessage(error.code));
+      console.error('Login failed:', error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }

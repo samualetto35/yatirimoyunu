@@ -27,6 +27,9 @@ const Header: React.FC = () => {
           {currentUser ? (
             <>
               <span className="user-email">{currentUser.email}</span>
+              <button className="nav-button" onClick={() => navigate('/home')}>
+                Ana Sayfa
+              </button>
               <button className="nav-button" onClick={() => navigate('/user')}>
                 Profil
               </button>

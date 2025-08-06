@@ -6,6 +6,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import VerifyEmail from './components/VerifyEmail';
 import UserPage from './components/UserPage';
+import HomePage from './components/HomePage';
+import LandingPage from './components/LandingPage';
 import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './components/ForgotPassword';
 import './App.css';
@@ -18,16 +20,16 @@ function AppContent() {
     <div className="App">
       {!hideHeader && <Header />}
       <Routes>
-        <Route path="/" element={
-          <div className="content">
-            <h1>Yatırım Oyunu'na Hoş Geldiniz</h1>
-            <p>Başlamak için giriş yapın veya kayıt olun.</p>
-          </div>
-        } />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/home" element={
+          <PrivateRoute>
+            <HomePage />
+          </PrivateRoute>
+        } />
         <Route path="/user" element={
           <PrivateRoute>
             <UserPage />

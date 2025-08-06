@@ -29,7 +29,7 @@ const VerifyEmail: React.FC = () => {
       // Email doğrulandıysa database kayıtları oluştur
       handleEmailVerified();
       setTimeout(() => {
-        navigate('/user');
+        navigate('/home'); // /user yerine /home'a yönlendir
       }, 2000);
     } else {
       console.log('⚠️ [VERIFY] Email not yet verified');
@@ -96,7 +96,7 @@ const VerifyEmail: React.FC = () => {
         await handleEmailVerified();
         
         setTimeout(() => {
-          navigate('/user');
+          navigate('/home'); // /user yerine /home'a yönlendir
         }, 2000);
       } else {
         console.log('⚠️ [VERIFY] Email not yet verified');
