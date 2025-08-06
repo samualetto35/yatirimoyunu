@@ -10,9 +10,11 @@ const AuthenticatedHeader: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      // Önce ana sayfaya yönlendir
       navigate('/');
-      console.log('User logged out successfully');
+      // Sonra logout işlemini yap
+      await logout();
+      console.log('User logged out successfully, redirected to home page');
     } catch (error) {
       console.error('Logout failed:', error);
     }
