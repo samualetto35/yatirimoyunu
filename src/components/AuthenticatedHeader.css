@@ -146,6 +146,64 @@
   border-color: #ef5350;
 }
 
+.refresh-icon {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #14669A;
+  transition: transform 0.3s ease;
+}
+.auth-nav-button.refresh:hover .refresh-icon,
+.mobile-action-btn.refresh:hover .refresh-icon {
+  transform: rotate(180deg);
+}
+.mobile-action-btn.refresh {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  color: #14669A;
+  font-weight: 500;
+}
+
+.refresh-minimal {
+  background: none;
+  border: none;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 0.2rem;
+  margin-left: 0.2rem;
+  outline: none;
+  box-shadow: none;
+}
+.refresh-minimal:active .refresh-icon,
+.refresh-minimal:hover .refresh-icon {
+  transform: rotate(180deg);
+}
+.refresh-icon {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #14669A;
+  transition: transform 0.3s ease;
+  margin-bottom: 0.1rem;
+}
+.refresh-label {
+  font-size: 0.68rem;
+  color: #888;
+  font-weight: 400;
+  margin-top: -0.1rem;
+  letter-spacing: 0.01em;
+}
+@media (max-width: 768px) {
+  .refresh-icon {
+    font-size: 1rem;
+  }
+  .refresh-label {
+    font-size: 0.62rem;
+  }
+}
+
 /* Mobile Layout - Yeni Tasarım */
 .auth-header-mobile {
   display: none; /* Default hidden, shown via media query */

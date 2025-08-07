@@ -65,6 +65,10 @@ const AuthenticatedHeader: React.FC = () => {
           </div>
 
           <div className="auth-header-right">
+            <button className="refresh-minimal" onClick={() => window.location.reload()}>
+              <span className="refresh-icon">↻</span>
+              <span className="refresh-label">Yenile</span>
+            </button>
             <button className="auth-nav-button" onClick={() => navigate('/user')}>
               Profil
             </button>
@@ -81,6 +85,10 @@ const AuthenticatedHeader: React.FC = () => {
               <h2>Yatırım Oyunu</h2>
             </div>
             <div className="mobile-actions">
+              <button className="refresh-minimal" onClick={() => window.location.reload()}>
+                <span className="refresh-icon">↻</span>
+                <span className="refresh-label">Yenile</span>
+              </button>
               <button className="mobile-action-btn profile" onClick={() => navigate('/user')}>
                 Profil
               </button>

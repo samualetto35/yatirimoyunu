@@ -220,4 +220,33 @@ export class DatabaseService {
       throw error;
     }
   }
+
+  // Aktif haftayı getir
+  static async getActiveWeek(): Promise<number | null> {
+    try {
+      const { data, error } = await supabase
+        .from('admin_week_control')
+        .select('week_1, week_2, week_3, week_4, week_5, week_6, week_7, week_8')
+        .eq('group_number', 1)
+        .single();
+
+      if (error) {
+        console.error('Error fetching active week:', error);
+        throw error;
+      }
+
+      // Hangi hafta aktif (1) ise onu döndür
+      const weekData = data as any;
+      for (let i = 1; i <= 8; i++) {
+        if (weekData[`week_${i}`] === 1) {
+          return i;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error in getActiveWeek:', error);
+      throw error;
+    }
+  }
 } 
