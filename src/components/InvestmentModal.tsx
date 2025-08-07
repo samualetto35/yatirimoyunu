@@ -100,10 +100,15 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
       setLoading(true);
       setError('');
 
-      // Geçici olarak admin week control'ü devre dışı bırak
-      console.log('🔍 [INVESTMENT] Skipping active week check for now...');
-      const activeWeek = 1; // Geçici olarak 1. hafta
-      console.log('🔍 [INVESTMENT] Using fixed active week:', activeWeek);
+      // Aktif haftayı kontrol et
+      console.log('🔍 [INVESTMENT] Checking active week...');
+      const activeWeek = await DatabaseService.getActiveWeek();
+      console.log('🔍 [INVESTMENT] Active week from database:', activeWeek);
+      
+      if (!activeWeek) {
+        setError('Aktif hafta bulunamadı');
+        return;
+      }
 
       // Seçimleri formatla: "3;0.5 9;0.5"
       const formattedSelections = selections

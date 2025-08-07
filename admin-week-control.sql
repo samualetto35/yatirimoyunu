@@ -32,7 +32,13 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_admin_week_control_updated_at 
-    BEFORE UPDATE ON admin_week_control 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column(); 
+CREATE TRIGGER update_admin_week_control_updated_at
+    BEFORE UPDATE ON admin_week_control
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- RLS'yi kapat
+ALTER TABLE admin_week_control DISABLE ROW LEVEL SECURITY;
+
+-- Kontrol et
+SELECT * FROM admin_week_control; 
