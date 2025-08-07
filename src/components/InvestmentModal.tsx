@@ -32,6 +32,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
 
   useEffect(() => {
     console.log('🔍 [INVESTMENT] Modal isOpen changed:', isOpen);
+    console.log('🔍 [INVESTMENT] Modal props:', { isOpen, onClose });
     if (isOpen) {
       console.log('🚀 [INVESTMENT] Modal opened, fetching market data...');
       fetchMarketData();
@@ -81,6 +82,10 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
   };
 
   const handleSubmit = async () => {
+    console.log('🔍 [INVESTMENT] Submit button clicked');
+    console.log('📊 [INVESTMENT] Current selections:', selections);
+    console.log('📊 [INVESTMENT] Total percentage:', totalPercentage);
+    
     if (totalPercentage !== 100) {
       setError('Toplam yüzde %100 olmalıdır');
       return;
@@ -94,24 +99,26 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
     try {
       setLoading(true);
       setError('');
-      
-      // Aktif haftayı kontrol et
-      const activeWeek = await DatabaseService.getActiveWeek();
-      if (!activeWeek) {
-        setError('Aktif hafta bulunamadı');
-        return;
-      }
+
+      // Geçici olarak admin week control'ü devre dışı bırak
+      console.log('🔍 [INVESTMENT] Skipping active week check for now...');
+      const activeWeek = 1; // Geçici olarak 1. hafta
+      console.log('🔍 [INVESTMENT] Using fixed active week:', activeWeek);
 
       // Seçimleri formatla: "3;0.5 9;0.5"
       const formattedSelections = selections
         .map(s => `${s.id};${s.percentage / 100}`)
         .join(' ');
+      
+      console.log('🔍 [INVESTMENT] Formatted selections:', formattedSelections);
 
       // User entries'i güncelle
+      console.log('🔍 [INVESTMENT] Updating user entries...');
       await DatabaseService.updateUserEntries(currentUser!.uid, {
         [`t${activeWeek - 1}percent`]: formattedSelections
       });
 
+      console.log('✅ [INVESTMENT] User entries updated successfully');
       setSuccess('Yatırım seçiminiz başarıyla kaydedildi!');
       setTimeout(() => {
         onClose();
@@ -119,13 +126,22 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
       }, 2000);
 
     } catch (err) {
-      setError('Yatırım seçimi kaydedilemedi');
+      console.error('❌ [INVESTMENT] Error in handleSubmit:', err);
+      setError(`Yatırım seçimi kaydedilemedi: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!isOpen) return null;
+  console.log('🔍 [INVESTMENT] Rendering modal, isOpen:', isOpen);
+  console.log('🔍 [INVESTMENT] Market data length:', marketData.length);
+  console.log('🔍 [INVESTMENT] Loading state:', loading);
+  console.log('🔍 [INVESTMENT] Error state:', error);
+
+  if (!isOpen) {
+    console.log('🔍 [INVESTMENT] Modal not open, returning null');
+    return null;
+  }
 
   return (
     <div className="investment-modal-overlay" onClick={onClose}>

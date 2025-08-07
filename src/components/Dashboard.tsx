@@ -159,7 +159,15 @@ const Dashboard: React.FC = () => {
 
         {/* Yatırım Ekle Butonu */}
         <div className="investment-add-section">
-          <button className="investment-add-btn" onClick={() => setShowInvestmentModal(true)}>
+          <button 
+            className="investment-add-btn" 
+            onClick={() => {
+              console.log('🔍 [DASHBOARD] Investment button clicked');
+              console.log('🔍 [DASHBOARD] Current showInvestmentModal state:', showInvestmentModal);
+              setShowInvestmentModal(true);
+              console.log('🔍 [DASHBOARD] Set showInvestmentModal to true');
+            }}
+          >
             <span className="add-icon">+</span>
             <span className="add-text">Yatırım Ekle</span>
           </button>
