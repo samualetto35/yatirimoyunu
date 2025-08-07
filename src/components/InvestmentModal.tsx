@@ -31,25 +31,16 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    console.log('🔍 [INVESTMENT] Modal isOpen changed:', isOpen);
-    console.log('🔍 [INVESTMENT] Modal props:', { isOpen, onClose });
     if (isOpen) {
-      console.log('🚀 [INVESTMENT] Modal opened, fetching market data...');
       fetchMarketData();
-    } else {
-      console.log('🔒 [INVESTMENT] Modal closed');
     }
   }, [isOpen]);
 
   const fetchMarketData = async () => {
     try {
       setLoading(true);
-      console.log('🔍 [INVESTMENT] Fetching market data...');
       
-      // DatabaseService ile market verilerini çek
       const data = await DatabaseService.getMarketData();
-      console.log('✅ [INVESTMENT] DatabaseService market data received:', data);
-      console.log('📊 [INVESTMENT] Number of items:', data?.length || 0);
       
       setMarketData(data || []);
       setSelections([]);
@@ -82,10 +73,6 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
   };
 
   const handleSubmit = async () => {
-    console.log('🔍 [INVESTMENT] Submit button clicked');
-    console.log('📊 [INVESTMENT] Current selections:', selections);
-    console.log('📊 [INVESTMENT] Total percentage:', totalPercentage);
-    
     if (totalPercentage !== 100) {
       setError('Toplam yüzde %100 olmalıdır');
       return;
@@ -101,9 +88,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
       setError('');
 
       // Aktif haftayı kontrol et
-      console.log('🔍 [INVESTMENT] Checking active week...');
       const activeWeek = await DatabaseService.getActiveWeek();
-      console.log('🔍 [INVESTMENT] Active week from database:', activeWeek);
       
       if (!activeWeek) {
         setError('Aktif hafta bulunamadı');
@@ -114,16 +99,12 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
       const formattedSelections = selections
         .map(s => `${s.id};${s.percentage / 100}`)
         .join(' ');
-      
-      console.log('🔍 [INVESTMENT] Formatted selections:', formattedSelections);
 
       // User entries'i güncelle
-      console.log('🔍 [INVESTMENT] Updating user entries...');
       await DatabaseService.updateUserEntries(currentUser!.uid, {
         [`t${activeWeek - 1}percent`]: formattedSelections
       });
 
-      console.log('✅ [INVESTMENT] User entries updated successfully');
       setSuccess('Yatırım seçiminiz başarıyla kaydedildi!');
       setTimeout(() => {
         onClose();
@@ -138,13 +119,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
-  console.log('🔍 [INVESTMENT] Rendering modal, isOpen:', isOpen);
-  console.log('🔍 [INVESTMENT] Market data length:', marketData.length);
-  console.log('🔍 [INVESTMENT] Loading state:', loading);
-  console.log('🔍 [INVESTMENT] Error state:', error);
-
   if (!isOpen) {
-    console.log('🔍 [INVESTMENT] Modal not open, returning null');
     return null;
   }
 
