@@ -122,19 +122,28 @@ export class DatabaseService {
   // Market verilerini getir
   static async getMarketData(): Promise<MarketRow[]> {
     try {
+      console.log('🔍 [DB] getMarketData called');
+      console.log('🔍 [DB] Supabase client:', supabase);
+      
       const { data, error } = await supabase
         .from('market')
         .select('*')
         .order('id');
 
+      console.log('🔍 [DB] Supabase query result:', { data, error });
+      console.log('🔍 [DB] Data type:', typeof data);
+      console.log('🔍 [DB] Data length:', data?.length);
+      console.log('🔍 [DB] First item:', data?.[0]);
+
       if (error) {
-        console.error('Error fetching market data:', error);
+        console.error('❌ [DB] Error fetching market data:', error);
         throw error;
       }
 
+      console.log('✅ [DB] Market data fetched successfully, returning:', data || []);
       return data || [];
     } catch (error) {
-      console.error('Error in getMarketData:', error);
+      console.error('❌ [DB] Error in getMarketData:', error);
       throw error;
     }
   }
