@@ -23,11 +23,13 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string>('Tümü');
   const [activeWeek, setActiveWeek] = useState<number>(1);
+  const [userEntries, setUserEntries] = useState<any>(null);
 
   useEffect(() => {
     const fetchProgress = async () => {
       if (!currentUser) return;
       const progress = await DatabaseService.getUserProgress(currentUser.uid);
+      const entries = await DatabaseService.getUserEntries(currentUser.uid);
       if (progress) {
         setProgressState(progress);
         // Sıralı olarak en sağdaki ve bir önceki dolu değeri bul
@@ -48,14 +50,151 @@ const Dashboard: React.FC = () => {
         setPortfolioValue(value);
         setPreviousPortfolioValue(prevValue);
       }
+      if (entries) {
+        setUserEntries(entries);
+      }
     };
-    fetchProgress();
+    
+    const fetchData = async () => {
+      await fetchProgress();
+      await fetchMarketData(); // Market verilerini de yükle
+    };
+    
+    fetchData();
     
     // 15 saniyede bir otomatik refresh
-    const interval = setInterval(fetchProgress, 15000);
+    const interval = setInterval(fetchData, 15000);
     
     return () => clearInterval(interval);
   }, [currentUser]);
+
+  // Aktif pozisyonları hesapla
+  const getActivePositions = () => {
+    if (!userEntries || !marketData) {
+      console.log('🔍 [DEBUG] userEntries or marketData is null:', { userEntries, marketData });
+      return [];
+    }
+    
+    console.log('🔍 [DEBUG] userEntries:', userEntries);
+    console.log('🔍 [DEBUG] marketData length:', marketData.length);
+    
+    // En son girilmiş percent string'ini bul
+    const percentFields = [
+      userEntries.t7percent,
+      userEntries.t6percent,
+      userEntries.t5percent,
+      userEntries.t4percent,
+      userEntries.t3percent,
+      userEntries.t2percent,
+      userEntries.t1percent,
+      userEntries.t0percent
+    ];
+    
+    const lastPercentString = percentFields.find(field => field && field.trim() !== '');
+    console.log('🔍 [DEBUG] lastPercentString:', lastPercentString);
+    
+    if (!lastPercentString) {
+      console.log('🔍 [DEBUG] No lastPercentString found');
+      return [];
+    }
+    
+    // "4;0.3 12;0.7" formatındaki string'i parçala
+    const positions = lastPercentString.split(' ').filter((pos: string) => pos.trim() !== '');
+    console.log('🔍 [DEBUG] positions:', positions);
+    
+    // Her pozisyon için market verilerini bul
+    const result = positions.map((pos: string) => {
+      const [id, percentage] = pos.split(';');
+      console.log('🔍 [DEBUG] Processing position:', { id, percentage });
+      
+      const marketItem = marketData.find(item => item.id === parseInt(id));
+      console.log('🔍 [DEBUG] Found marketItem:', marketItem);
+      
+      const resultItem = {
+        id: parseInt(id),
+        percentage: parseFloat(percentage) * 100, // 0.3 -> 30
+        ticker: marketItem?.yatirim_araci_kod || 'N/A',
+        name: marketItem?.yatirim_araci || 'N/A',
+        currency: marketItem?.baz_cur || 'N/A'
+      };
+      
+      console.log('🔍 [DEBUG] Result item:', resultItem);
+      return resultItem;
+    });
+    
+    console.log('🔍 [DEBUG] Final result:', result);
+    return result;
+  };
+
+  // Önceki hafta değerini hesapla
+  const getPreviousWeekValue = () => {
+    if (!progressState) return null;
+    
+    // En son dolu stl değerini bul
+    const stlFields = [
+      progressState.t7stl,
+      progressState.t6stl,
+      progressState.t5stl,
+      progressState.t4stl,
+      progressState.t3stl,
+      progressState.t2stl,
+      progressState.t1stl,
+      progressState.t0stl
+    ];
+    
+    const lastStlValue = stlFields.find(field => field !== null && field !== undefined);
+    return lastStlValue;
+  };
+
+  // Önceki hafta pozisyon sayısını hesapla
+  const getPreviousWeekPositionsCount = () => {
+    if (!userEntries) return 0;
+    
+    // En son girilmiş percent string'ini bul
+    const percentFields = [
+      userEntries.t7percent,
+      userEntries.t6percent,
+      userEntries.t5percent,
+      userEntries.t4percent,
+      userEntries.t3percent,
+      userEntries.t2percent,
+      userEntries.t1percent,
+      userEntries.t0percent
+    ];
+    
+    console.log('🔍 [DEBUG] All percent fields:', percentFields);
+    
+    // En son dolu alanın index'ini bul
+    const lastFilledIndex = percentFields.findIndex(field => field && field.trim() !== '');
+    console.log('🔍 [DEBUG] Last filled index:', lastFilledIndex);
+    
+    if (lastFilledIndex === -1) {
+      console.log('🔍 [DEBUG] No filled field found, returning 0');
+      return 0; // Hiç dolu alan yok
+    }
+    
+    // Bir önceki dolu alanı bul
+    const previousFilledIndex = percentFields.findIndex((field, index) => 
+      index > lastFilledIndex && field && field.trim() !== ''
+    );
+    
+    console.log('🔍 [DEBUG] Previous filled index:', previousFilledIndex);
+    
+    if (previousFilledIndex === -1) {
+      console.log('🔍 [DEBUG] No previous filled field found, returning 0');
+      return 0; // Bir önceki dolu alan yok
+    }
+    
+    const previousPercentString = percentFields[previousFilledIndex];
+    console.log('🔍 [DEBUG] Previous percent string:', previousPercentString);
+    
+    // "4;0.3 12;0.7" formatındaki string'i parçala
+    const positions = previousPercentString.split(' ').filter((pos: string) => pos.trim() !== '');
+    console.log('🔍 [DEBUG] Parsed positions:', positions);
+    console.log('🔍 [DEBUG] Position count:', positions.length);
+    
+    return positions.length;
+  };
 
   // Investment Panel Functions
   useEffect(() => {
@@ -234,13 +373,13 @@ const Dashboard: React.FC = () => {
 
           <div className="dashboard-card" onClick={() => scrollToSection('aktif-yatirimlar')}>
             <div className="card-header">
-              <h3>Aktif Yatırımlar</h3>
-              <span className="card-badge neutral">8</span>
+              <h3>Aktif Pozisyonlar</h3>
+              <span className="card-badge neutral">Aktif</span>
             </div>
-            <div className="card-value">₺98,200</div>
+            <div className="card-value">{getActivePositions().length}</div>
             <div className="card-details">
-              <span>₺27,250</span>
-              <span>Nakit</span>
+              <span>{getPreviousWeekPositionsCount()}</span>
+              <span>Önceki Hafta</span>
             </div>
           </div>
 
@@ -685,52 +824,23 @@ const Dashboard: React.FC = () => {
 
         <div id="aktif-yatirimlar" className="detail-section">
           <div className="section-card">
-            <h3>Aktif Yatırımlar Detayı</h3>
+            <h3>Aktif Pozisyonlar Detayı</h3>
             <div className="investments-grid">
-              <div className="investment-item">
-                <div className="investment-header">
-                  <h4>THYAO</h4>
-                  <span className="investment-change positive">+5.2%</span>
+              {getActivePositions().map((item: any, index: number) => (
+                <div key={index} className="investment-item">
+                  <div className="investment-left">
+                    <div className="investment-ticker">{item.ticker}</div>
+                    <div className="investment-name">{item.name}</div>
+                  </div>
+                  <div className="investment-center">
+                    <div className="investment-dot"></div>
+                    <div className="investment-currency">{item.currency}</div>
+                  </div>
+                  <div className="investment-right">
+                    <div className="investment-percentage">{item.percentage}%</div>
+                  </div>
                 </div>
-                <div className="investment-details">
-                  <div className="investment-amount">100 adet</div>
-                  <div className="investment-value">₺4,520</div>
-                  <div className="investment-profit">+₺220</div>
-                </div>
-              </div>
-              <div className="investment-item">
-                <div className="investment-header">
-                  <h4>GARAN</h4>
-                  <span className="investment-change negative">-1.8%</span>
-                </div>
-                <div className="investment-details">
-                  <div className="investment-amount">150 adet</div>
-                  <div className="investment-value">₺4,920</div>
-                  <div className="investment-profit negative">-₺90</div>
-                </div>
-              </div>
-              <div className="investment-item">
-                <div className="investment-header">
-                  <h4>ASELS</h4>
-                  <span className="investment-change positive">+3.4%</span>
-                </div>
-                <div className="investment-details">
-                  <div className="investment-amount">200 adet</div>
-                  <div className="investment-value">₺5,700</div>
-                  <div className="investment-profit">+₺190</div>
-                </div>
-              </div>
-              <div className="investment-item">
-                <div className="investment-header">
-                  <h4>KRDMD</h4>
-                  <span className="investment-change positive">+7.1%</span>
-                </div>
-                <div className="investment-details">
-                  <div className="investment-amount">75 adet</div>
-                  <div className="investment-value">₺3,825</div>
-                  <div className="investment-profit">+₺255</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

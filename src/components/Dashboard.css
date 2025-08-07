@@ -1312,3 +1312,113 @@
     margin: 0.25rem 0;
   }
 } 
+
+/* Aktif Pozisyonlar Detayı */
+.investments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.investment-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.investment-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.investment-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.investment-ticker {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.2;
+}
+
+.investment-name {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.2;
+}
+
+.investment-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1rem;
+}
+
+.investment-dot {
+  width: 6px;
+  height: 6px;
+  background: #14669A;
+  border-radius: 50%;
+}
+
+.investment-currency {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.investment-right {
+  display: flex;
+  align-items: center;
+}
+
+.investment-percentage {
+  background: #10B981;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .investments-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .investment-item {
+    padding: 1rem;
+  }
+  
+  .investment-ticker {
+    font-size: 1rem;
+  }
+  
+  .investment-name {
+    font-size: 0.85rem;
+  }
+  
+  .investment-currency {
+    font-size: 0.8rem;
+  }
+  
+  .investment-percentage {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    min-width: 50px;
+  }
+} 
