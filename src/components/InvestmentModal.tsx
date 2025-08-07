@@ -45,30 +45,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ isOpen, onClose }) =>
       setLoading(true);
       console.log('🔍 [INVESTMENT] Fetching market data...');
       
-      // Supabase bağlantısını test et
-      console.log('🔗 [INVESTMENT] Testing Supabase connection...');
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabaseUrl = 'https://dkysingbylclfjlgqioo.supabase.co';
-      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRreXNpbmdieWxjbGZqbGdxaW9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzOTY0ODYsImV4cCI6MjA2OTk3MjQ4Nn0.x4oKztZnr99JUDI1B9HUkNBAj4ZagyGSM5MpTkvwZ5A';
-      const supabase = createClient(supabaseUrl, supabaseKey);
-      
-      // Direkt Supabase'den market verilerini çek
-      const { data: directData, error: directError } = await supabase
-        .from('market')
-        .select('*')
-        .order('id');
-      
-      console.log('🔍 [INVESTMENT] Direct Supabase query result:', { data: directData, error: directError });
-      
-      if (directError) {
-        console.error('❌ [INVESTMENT] Direct Supabase error:', directError);
-        throw directError;
-      }
-      
-      console.log('✅ [INVESTMENT] Direct market data received:', directData);
-      console.log('📊 [INVESTMENT] Number of items:', directData?.length || 0);
-      
-      // DatabaseService ile de dene
+      // DatabaseService ile market verilerini çek
       const data = await DatabaseService.getMarketData();
       console.log('✅ [INVESTMENT] DatabaseService market data received:', data);
       console.log('📊 [INVESTMENT] Number of items:', data?.length || 0);
