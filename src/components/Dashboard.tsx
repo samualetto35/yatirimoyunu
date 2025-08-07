@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { DatabaseService } from '../services/databaseService';
-import InvestmentModal from './InvestmentModal';
 import './Dashboard.css';
 
 const isMobile = () => window.innerWidth <= 768;
@@ -12,7 +11,18 @@ const Dashboard: React.FC = () => {
   const [previousPortfolioValue, setPreviousPortfolioValue] = useState<number | null>(null);
   const [progressState, setProgressState] = useState<any>(null);
   const [activePoint, setActivePoint] = useState<{ idx: number, val: number, left: string, bottom: string } | null>(null);
-  const [showInvestmentModal, setShowInvestmentModal] = useState(false);
+  const [showInvestmentPanel, setShowInvestmentPanel] = useState(false);
+  
+  // Investment Panel States
+  const [marketData, setMarketData] = useState<any[]>([]);
+  const [selections, setSelections] = useState<{id: number, percentage: number}[]>([]);
+  const [totalPercentage, setTotalPercentage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<string>('Tümü');
+  const [activeWeek, setActiveWeek] = useState<number>(1);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -46,6 +56,108 @@ const Dashboard: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [currentUser]);
+
+  // Investment Panel Functions
+  useEffect(() => {
+    if (showInvestmentPanel) {
+      fetchMarketData();
+      fetchActiveWeek();
+    }
+  }, [showInvestmentPanel]);
+
+  const fetchActiveWeek = async () => {
+    try {
+      const week = await DatabaseService.getActiveWeek();
+      if (week) {
+        setActiveWeek(week);
+      }
+    } catch (err) {
+      console.error('❌ [DASHBOARD] Error fetching active week:', err);
+    }
+  };
+
+  const fetchMarketData = async () => {
+    try {
+      setLoading(true);
+      
+      const data = await DatabaseService.getMarketData();
+      
+      setMarketData(data || []);
+      setSelections([]);
+      setTotalPercentage(0);
+      setError('');
+    } catch (err) {
+      console.error('❌ [INVESTMENT] Error fetching market data:', err);
+      setError(`Market verileri yüklenemedi: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePercentageChange = (id: number, percentage: number) => {
+    const newSelections = [...selections];
+    const existingIndex = newSelections.findIndex(s => s.id === id);
+    
+    if (existingIndex >= 0) {
+      newSelections[existingIndex].percentage = percentage;
+    } else {
+      newSelections.push({ id, percentage });
+    }
+    
+    // 0 olan seçimleri kaldır
+    const filteredSelections = newSelections.filter(s => s.percentage > 0);
+    setSelections(filteredSelections);
+    
+    const total = filteredSelections.reduce((sum, s) => sum + s.percentage, 0);
+    setTotalPercentage(total);
+  };
+
+  const handleSubmit = async () => {
+    if (totalPercentage !== 100) {
+      setError('Toplam yüzde %100 olmalıdır');
+      return;
+    }
+
+    if (selections.length === 0) {
+      setError('En az bir yatırım seçmelisiniz');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      // Aktif haftayı kontrol et
+      const activeWeek = await DatabaseService.getActiveWeek();
+      
+      if (!activeWeek) {
+        setError('Aktif hafta bulunamadı');
+        return;
+      }
+
+      // Seçimleri formatla: "3;0.5 9;0.5"
+      const formattedSelections = selections
+        .map(s => `${s.id};${s.percentage / 100}`)
+        .join(' ');
+
+      // User entries'i güncelle
+      await DatabaseService.updateUserEntries(currentUser!.uid, {
+        [`t${activeWeek - 1}percent`]: formattedSelections
+      });
+
+      setSuccess('Yatırım seçiminiz başarıyla kaydedildi!');
+      setTimeout(() => {
+        setShowInvestmentPanel(false);
+        setSuccess('');
+      }, 2000);
+
+    } catch (err) {
+      console.error('❌ [INVESTMENT] Error in handleSubmit:', err);
+      setError(`Yatırım seçimi kaydedilemedi: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!currentUser) {
     return null; // PrivateRoute zaten kontrol ediyor
@@ -163,15 +275,134 @@ const Dashboard: React.FC = () => {
             className="investment-add-btn" 
             onClick={() => {
               console.log('🔍 [DASHBOARD] Investment button clicked');
-              console.log('🔍 [DASHBOARD] Current showInvestmentModal state:', showInvestmentModal);
-              setShowInvestmentModal(true);
-              console.log('🔍 [DASHBOARD] Set showInvestmentModal to true');
+              console.log('🔍 [DASHBOARD] Current showInvestmentPanel state:', showInvestmentPanel);
+              setShowInvestmentPanel(!showInvestmentPanel);
+              console.log('🔍 [DASHBOARD] Set showInvestmentPanel to:', !showInvestmentPanel);
             }}
           >
             <span className="add-icon">+</span>
             <span className="add-text">Yatırım Ekle</span>
           </button>
         </div>
+
+        {/* Aktif Hafta Bilgisi */}
+        {showInvestmentPanel && (
+          <div className="active-week-display">
+            <span className="week-number">{activeWeek}. Hafta</span> için görüntüleniyor
+          </div>
+        )}
+
+        {/* Açılır Yatırım Paneli */}
+        {showInvestmentPanel && (
+          <div className="investment-panel">
+            <div className="panel-header">
+              <h3>Yatırım Seçimi</h3>
+              <button className="panel-close" onClick={() => setShowInvestmentPanel(false)}>×</button>
+            </div>
+
+            <div className="panel-content">
+              {error && <div className="error-message">{error}</div>}
+              {success && <div className="success-message">{success}</div>}
+
+              {/* Arama Inputu */}
+              <div className="search-section">
+                <input
+                  type="text"
+                  placeholder="Yatırım Ara..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+
+              {/* Yatay Kaydırmalı Filtre Kutuları */}
+              <div className="filter-section">
+                <div className="filter-scroll">
+                  <button
+                    className={`filter-btn ${selectedGroup === 'Tümü' ? 'active' : ''}`}
+                    onClick={() => setSelectedGroup('Tümü')}
+                  >
+                    Tümü
+                  </button>
+                  {Array.from(new Set(marketData.map(item => item.yatirim_grubu))).map(group => (
+                    <button
+                      key={group}
+                      className={`filter-btn ${selectedGroup === group ? 'active' : ''}`}
+                      onClick={() => setSelectedGroup(group)}
+                    >
+                      {group}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Yüzde Bilgisi */}
+              <div className="percentage-info">
+                <span>Toplam: {totalPercentage}%</span>
+                {totalPercentage > 100 && <span className="error">%100'ü geçemez!</span>}
+                {totalPercentage < 100 && <span className="warning">%100 olmalı</span>}
+              </div>
+
+              {/* Yatırım Listesi */}
+              <div className="investment-list">
+                {loading ? (
+                  <div className="loading">Market verileri yükleniyor...</div>
+                ) : marketData.length === 0 ? (
+                  <div className="loading">Market verisi bulunamadı. Lütfen daha sonra tekrar deneyin.</div>
+                ) : (
+                  marketData
+                    .filter(item => {
+                      const matchesSearch = item.yatirim_araci_kod.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                          item.yatirim_araci.toLowerCase().includes(searchTerm.toLowerCase());
+                      const matchesFilter = selectedGroup === 'Tümü' || item.yatirim_grubu === selectedGroup;
+                      return matchesSearch && matchesFilter;
+                    })
+                    .map(item => {
+                      const selection = selections.find(s => s.id === item.id);
+                      const percentage = selection?.percentage || 0;
+
+                      return (
+                        <div key={item.id} className="investment-item">
+                          <div className="item-info">
+                            <div className="item-code">{item.yatirim_araci_kod}</div>
+                            <div className="item-details">
+                              <div className="item-name">{item.yatirim_araci}</div>
+                              <div className="item-currency">{item.baz_cur}</div>
+                            </div>
+                          </div>
+                          <div className="percentage-input">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={percentage}
+                              onChange={(e) => handlePercentageChange(item.id, Number(e.target.value))}
+                              placeholder="%"
+                              className={percentage > 0 ? 'has-value' : ''}
+                            />
+                            <span className="percentage-symbol">%</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+            </div>
+
+            <div className="panel-footer">
+              <button className="btn-cancel" onClick={() => setShowInvestmentPanel(false)}>
+                İptal
+              </button>
+              <button 
+                className="btn-submit" 
+                onClick={handleSubmit}
+                disabled={loading || totalPercentage !== 100 || selections.length === 0}
+              >
+                {loading ? 'Kaydediliyor...' : 'Yatırımı Kaydet'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="dashboard-sections">
           <div className="section-card">
@@ -505,10 +736,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       {/* Investment Modal */}
-      <InvestmentModal 
-        isOpen={showInvestmentModal} 
-        onClose={() => setShowInvestmentModal(false)} 
-      />
+      {/* The InvestmentModal component is removed as per the edit hint. */}
     </div>
   );
 };

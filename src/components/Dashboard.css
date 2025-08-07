@@ -881,13 +881,14 @@
   margin: 2rem 0;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .investment-add-btn {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
@@ -899,6 +900,8 @@
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
   min-width: 200px;
   justify-content: flex-start;
+  width: 100%; /* TAM GENİŞLİK */
+  max-width: 600px;
 }
 
 .investment-add-btn:hover {
@@ -930,5 +933,382 @@
   }
   .add-text {
     font-size: 1rem;
+  }
+} 
+
+/* Açılır Yatırım Paneli */
+.investment-panel {
+  background: white;
+  border-radius: 12px;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.panel-close:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+.panel-content {
+  padding: 2rem;
+}
+
+/* Arama Bölümü */
+.search-section {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Aktif Hafta Bilgisi */
+.active-week-display {
+  text-align: center;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.active-week-display .week-number {
+  color: #14669A;
+  font-weight: 600;
+}
+
+/* Filtre Bölümü */
+.filter-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 transparent;
+}
+
+.filter-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filter-scroll::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 2px;
+}
+
+.filter-btn {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-btn:hover {
+  border-color: #14669A;
+  color: #14669A;
+}
+
+.filter-btn.active {
+  background: #14669A;
+  border-color: #14669A;
+  color: white;
+}
+
+/* Yüzde Bilgisi */
+.percentage-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.percentage-info .error {
+  color: #dc3545;
+}
+
+.percentage-info .warning {
+  color: #ffc107;
+}
+
+/* Yatırım Listesi */
+.investment-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.investment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.investment-item:hover {
+  border-color: #14669A;
+  box-shadow: 0 2px 8px rgba(20, 102, 154, 0.1);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-code {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #14669A;
+  margin-bottom: 0.25rem;
+}
+
+.item-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-currency {
+  color: #666;
+}
+
+.percentage-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.percentage-input input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.percentage-input input:focus {
+  outline: none;
+  border-color: #14669A;
+  box-shadow: 0 0 0 3px rgba(20, 102, 154, 0.1);
+}
+
+.percentage-input input.has-value {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.percentage-symbol {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Panel Footer */
+.panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.btn-cancel {
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: #e9ecef;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #14669A 0%, #1e88e5 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 102, 154, 0.3);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #c3e6cb;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .panel-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .panel-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .panel-content {
+    padding: 1.5rem;
+  }
+  
+  .panel-footer {
+    padding: 1rem 1.5rem;
+  }
+  
+  .investment-item {
+    padding: 0.75rem;
+  }
+  
+  .item-code {
+    font-size: 1rem;
+  }
+  
+  .item-details {
+    font-size: 0.8rem;
+  }
+  
+  .percentage-input input {
+    width: 70px;
+    font-size: 0.9rem;
+  }
+  
+  .filter-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+} 
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .active-week-display {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem 0;
   }
 } 
