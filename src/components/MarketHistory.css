@@ -1,0 +1,132 @@
+ .market-history-page {
+  padding: 1rem 1.5rem 2rem; /* leave space for fixed header */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.market-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.market-history-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  min-width: 200px;
+}
+
+.group-select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.week-select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.error-box {
+  background: #fff4f4;
+  color: #b00020;
+  border: 1px solid #ffd6d6;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.table-wrapper {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.market-table thead th {
+  text-align: left;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.75rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.market-table tbody td {
+  border-bottom: 1px solid #f1f1f1;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.92rem;
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.sort-indicator {
+  margin-left: 0.3rem;
+  color: #666;
+}
+
+.market-table th:nth-child(1),
+.market-table td:nth-child(1) { width: 140px; }
+.market-table th:nth-child(2),
+.market-table td:nth-child(2) { width: 280px; }
+.market-table th:nth-child(3),
+.market-table td:nth-child(3) { width: 90px; }
+
+@media (max-width: 900px) {
+  .market-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .controls {
+    width: 100%;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .market-table thead {
+    display: none;
+  }
+  .market-table tbody tr {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0.75rem;
+  }
+  .market-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+  }
+  .market-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #666;
+  }
+} 

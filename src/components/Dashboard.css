@@ -804,6 +804,7 @@
 
 .value-positive {
   color: #28a745 !important;
+  font-size: 0.9rem;
 }
 .value-negative {
   color: #dc3545 !important;
@@ -911,6 +912,38 @@
 
 .investment-add-btn:active {
   transform: translateY(0);
+}
+
+.investment-add-btn.disabled,
+.investment-add-btn:disabled {
+  background: #e9ecef;
+  border-color: #e0e0e0;
+  color: #9aa0a6;
+  cursor: not-allowed;
+}
+.investment-add-btn.disabled .add-icon,
+.investment-add-btn:disabled .add-icon,
+.investment-add-btn.disabled .add-text,
+.investment-add-btn:disabled .add-text {
+  color: #9aa0a6;
+}
+.investment-add-btn.disabled:hover,
+.investment-add-btn:disabled:hover {
+  transform: none;
+  background: #e9ecef;
+}
+
+.investment-add-btn .disabled-message {
+  font-size: 0.9rem;
+  color: #6b7280; /* gray-500 */
+  display: inline-block;
+  padding: 0.1rem 0;
+}
+
+@media (max-width: 768px) {
+  .investment-add-btn .disabled-message {
+    font-size: 0.85rem;
+  }
 }
 
 .add-icon {
@@ -1421,4 +1454,29 @@
     font-size: 0.85rem;
     min-width: 50px;
   }
+} 
+
+.investment-disabled-note {
+  text-align: center;
+  margin-top: 0.5rem;
+  color: #7a7a7a;
+  font-size: 0.85rem;
+} 
+
+.section-card.clickable {
+  position: relative;
+  cursor: pointer;
+}
+.section-card.clickable:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+.external-link-arrow {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 1rem;
+  color: #666;
+}
+.section-card.clickable:hover .external-link-arrow {
+  color: #333;
 } 

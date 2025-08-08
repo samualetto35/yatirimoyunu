@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
@@ -7,8 +7,11 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
 
-  const handleLogout = async () => {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const confirmLogout = async () => {
     try {
+      setShowLogoutConfirm(false);
       await logout();
       navigate('/');
       console.log('User logged out successfully');
@@ -20,12 +23,12 @@ const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <div className="logo" onClick={() => navigate('/')}>
+        <div className="logo" onClick={() => navigate('/') }>
           <h2>Yatırım Oyunu</h2>
         </div>
         <div className="nav-buttons">
           {currentUser ? (
-            <button className="nav-button logout" onClick={handleLogout}>
+            <button className="nav-button logout" onClick={() => setShowLogoutConfirm(true)}>
               Çıkış Yap
             </button>
           ) : (
@@ -40,6 +43,19 @@ const Header: React.FC = () => {
           )}
         </div>
       </div>
+
+      {showLogoutConfirm && (
+        <div className="modal-overlay" onClick={() => setShowLogoutConfirm(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Çıkış yapılsın mı?</h3>
+            <p>Oturumunuzu kapatmak istediğinizden emin misiniz?</p>
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowLogoutConfirm(false)}>İptal</button>
+              <button className="btn-confirm" onClick={confirmLogout}>Çıkış Yap</button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

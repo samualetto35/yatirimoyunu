@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './AuthenticatedHeader.css';
@@ -8,17 +8,21 @@ const AuthenticatedHeader: React.FC = () => {
   const location = useLocation();
   const { logout } = useAuth(); // currentUser removed as it's not directly used in JSX
 
-  const handleLogout = async () => {
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const confirmLogout = async () => {
     try {
-      // Önce ana sayfaya yönlendir
+      setShowLogoutConfirm(false);
       navigate('/');
-      // Sonra logout işlemini yap
       await logout();
       console.log('User logged out successfully, redirected to home page');
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
+
+  const handleLogoutClick = () => setShowLogoutConfirm(true);
+  const closeLogoutModal = () => setShowLogoutConfirm(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -72,7 +76,7 @@ const AuthenticatedHeader: React.FC = () => {
             <button className="auth-nav-button" onClick={() => navigate('/user')}>
               Profil
             </button>
-            <button className="auth-nav-button logout" onClick={handleLogout}>
+            <button className="auth-nav-button logout" onClick={handleLogoutClick}>
               Çıkış Yap
             </button>
           </div>
@@ -92,7 +96,7 @@ const AuthenticatedHeader: React.FC = () => {
               <button className="mobile-action-btn profile" onClick={() => navigate('/user')}>
                 Profil
               </button>
-              <button className="mobile-action-btn logout" onClick={handleLogout}>
+              <button className="mobile-action-btn logout" onClick={handleLogoutClick}>
                 Çıkış
               </button>
             </div>
@@ -125,6 +129,19 @@ const AuthenticatedHeader: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {showLogoutConfirm && (
+          <div className="modal-overlay" onClick={closeLogoutModal}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Çıkış yapılsın mı?</h3>
+              <p>Oturumunuzu kapatmak istediğinizden emin misiniz?</p>
+              <div className="modal-actions">
+                <button className="btn-cancel" onClick={closeLogoutModal}>İptal</button>
+                <button className="btn-confirm" onClick={confirmLogout}>Çıkış Yap</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

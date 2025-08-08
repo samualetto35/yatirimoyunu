@@ -12,6 +12,7 @@ import UserPage from './components/UserPage';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
+import MarketHistory from './components/MarketHistory';
 import './App.css';
 
 function AppContent() {
@@ -22,7 +23,7 @@ function AppContent() {
   const hideHeader = ["/login", "/register", "/verify-email", "/forgot-password"].includes(location.pathname);
 
   // Giriş yapmış kullanıcılar için authenticated header göster
-  const showAuthenticatedHeader = currentUser && !hideHeader && ["/user", "/dashboard", "/investments", "/ranking", "/community"].includes(location.pathname);
+  const showAuthenticatedHeader = currentUser && !hideHeader && ["/user", "/dashboard", "/investments", "/ranking", "/community", "/gecmis-veriler"].includes(location.pathname);
 
   // Giriş yapmamış kullanıcılar için normal header göster
   const showNormalHeader = !currentUser && !hideHeader;
@@ -46,6 +47,11 @@ function AppContent() {
         <Route path="/dashboard" element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/gecmis-veriler" element={
+          <PrivateRoute>
+            <MarketHistory />
           </PrivateRoute>
         } />
         <Route path="/user" element={

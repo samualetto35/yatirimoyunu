@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { DatabaseService } from '../services/databaseService';
 import './Dashboard.css';
+import { useNavigate } from 'react-router-dom';
 
 const isMobile = () => window.innerWidth <= 768;
 
@@ -24,6 +25,8 @@ const Dashboard: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string>('Tümü');
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [userEntries, setUserEntries] = useState<any>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -58,6 +61,13 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       await fetchProgress();
       await fetchMarketData(); // Market verilerini de yükle
+      try {
+        const week = await DatabaseService.getActiveWeek();
+        setActiveWeek(week ?? 0);
+      } catch (e) {
+        console.error('❌ [DASHBOARD] Error fetching active week (interval):', e);
+        setActiveWeek(0);
+      }
     };
     
     fetchData();
@@ -207,11 +217,10 @@ const Dashboard: React.FC = () => {
   const fetchActiveWeek = async () => {
     try {
       const week = await DatabaseService.getActiveWeek();
-      if (week) {
-        setActiveWeek(week);
-      }
+      setActiveWeek(week ?? 0);
     } catch (err) {
       console.error('❌ [DASHBOARD] Error fetching active week:', err);
+      setActiveWeek(0);
     }
   };
 
@@ -298,6 +307,95 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Ortalama haftalık getiri (TL) hesaplama
+  const getAverageWeeklyReturn = (): number | null => {
+    if (!progressState) return null;
+    const seriesRaw = [
+      progressState.t0btl,
+      progressState.t0stl,
+      progressState.t1stl,
+      progressState.t2stl,
+      progressState.t3stl,
+      progressState.t4stl,
+      progressState.t5stl,
+      progressState.t6stl,
+      progressState.t7stl,
+    ];
+    const series = seriesRaw.filter((v) => v !== null && v !== undefined) as number[];
+    if (series.length < 2) return null;
+    const diffs = [] as number[];
+    for (let i = 1; i < series.length; i += 1) {
+      const delta = series[i] - series[i - 1];
+      if (delta !== 0) {
+        diffs.push(delta);
+      }
+    }
+    if (diffs.length === 0) return 0;
+    const sum = diffs.reduce((acc, v) => acc + v, 0);
+    return sum / diffs.length;
+  };
+
+  // Son haftalık fark (TL) hesaplama (en son iki dolu değer farkı)
+  const getLastWeekDelta = (): number | null => {
+    if (!progressState) return null;
+    const seriesRaw = [
+      progressState.t0btl,
+      progressState.t0stl,
+      progressState.t1stl,
+      progressState.t2stl,
+      progressState.t3stl,
+      progressState.t4stl,
+      progressState.t5stl,
+      progressState.t6stl,
+      progressState.t7stl,
+    ];
+    const series = seriesRaw.filter((v) => v !== null && v !== undefined) as number[];
+    if (series.length < 2) return null;
+    const last = series[series.length - 1];
+    const prev = series[series.length - 2];
+    return last - prev;
+  };
+
+  // Haftalık farklar (0 olmayanlar) hesaplama
+  const getWeeklyDiffs = (): number[] => {
+    if (!progressState) return [];
+    const seriesRaw = [
+      progressState.t0btl,
+      progressState.t0stl,
+      progressState.t1stl,
+      progressState.t2stl,
+      progressState.t3stl,
+      progressState.t4stl,
+      progressState.t5stl,
+      progressState.t6stl,
+      progressState.t7stl,
+    ];
+    const series = seriesRaw.filter((v) => v !== null && v !== undefined) as number[];
+    if (series.length < 2) return [];
+    const diffs: number[] = [];
+    for (let i = 1; i < series.length; i += 1) {
+      const delta = series[i] - series[i - 1];
+      if (delta !== 0) diffs.push(delta);
+    }
+    return diffs;
+  };
+
+  // Pozitif hafta oranı hesaplama (yüzde)
+  const getPositiveWeekRatio = (): { percent: number | null; positives: number; negatives: number; total: number } => {
+    const diffs = getWeeklyDiffs();
+    if (diffs.length === 0) return { percent: null, positives: 0, negatives: 0, total: 0 };
+    const positives = diffs.filter((d) => d > 0).length;
+    const negatives = diffs.filter((d) => d < 0).length;
+    const percent = Math.round((positives / diffs.length) * 100);
+    return { percent, positives, negatives, total: diffs.length };
+  };
+
+  const formatSignedCurrency = (value: number): string => {
+    const rounded = Math.round(value);
+    const sign = rounded > 0 ? '+' : '';
+    return `${sign}₺${rounded.toLocaleString('tr-TR')}`;
+  };
+
   if (!currentUser) {
     return null; // PrivateRoute zaten kontrol ediyor
   }
@@ -323,6 +421,8 @@ const Dashboard: React.FC = () => {
     else if (percentChange < 0) percentClass = 'negative';
     else percentClass = 'neutral';
   }
+
+  const isInvestmentEnabled = activeWeek > 0;
 
   return (
     <div className="dashboard-page">
@@ -350,7 +450,7 @@ const Dashboard: React.FC = () => {
                         : ''
                     : ''
                 }>
-                  {portfolioValue !== null && previousPortfolioValue !== null ? `${(portfolioValue - previousPortfolioValue) > 0 ? '+' : ''}₺${(portfolioValue - previousPortfolioValue).toLocaleString('tr-TR')}` : '...'}
+                  {portfolioValue !== null && previousPortfolioValue !== null ? `${(portfolioValue - previousPortfolioValue) > 0 ? '' : ''}₺${(portfolioValue - previousPortfolioValue).toLocaleString('tr-TR')}` : '...'}
                 </span>
                 <span>Bu hafta</span>
               </div>
@@ -364,7 +464,7 @@ const Dashboard: React.FC = () => {
                         : ''
                     : ''
                 }>
-                  {portfolioValue !== null ? `${(portfolioValue - 100000) > 0 ? '+' : ''}₺${(portfolioValue - 100000).toLocaleString('tr-TR')}` : '...'}
+                  {portfolioValue !== null ? `${(portfolioValue - 100000) > 0 ? '' : ''}₺${(portfolioValue - 100000).toLocaleString('tr-TR')}` : '...'}
                 </span>
                 <span>Tüm zamanlar</span>
               </div>
@@ -385,25 +485,56 @@ const Dashboard: React.FC = () => {
 
           <div className="dashboard-card" onClick={() => scrollToSection('ortalama-getiri')}>
             <div className="card-header">
-              <h3>Ortalama Getiri</h3>
-              <span className="card-badge positive">+8.2%</span>
+              <h3>Ortalama Haftalık Getiri</h3>
             </div>
-            <div className="card-value">₺9,850</div>
+            <div className="card-value">
+              {(() => {
+                const avg = getAverageWeeklyReturn();
+                return avg !== null
+                  ? `₺${Math.round(avg).toLocaleString('tr-TR')}`
+                  : '...';
+              })()}
+            </div>
             <div className="card-details">
-              <span>+₺750</span>
-              <span>Bu ay</span>
+              {(() => {
+                const delta = getLastWeekDelta();
+                const cls = delta !== null ? (delta > 0 ? 'value-positive' : delta < 0 ? 'value-negative' : '') : '';
+                return (
+                  <>
+                    <span className={cls}>{delta !== null ? formatSignedCurrency(delta) : '...'}</span>
+                    <span>Önceki Hafta</span>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
           <div className="dashboard-card">
             <div className="card-header">
-              <h3>Risk Skoru</h3>
-              <span className="card-badge warning">Orta</span>
+              <h3>Pozitif Hafta Oranı</h3>
             </div>
-            <div className="card-value">6.8/10</div>
-            <div className="card-details">
-              <span>-0.2</span>
-              <span>Bu hafta</span>
+            <div className="card-value">
+              {(() => {
+                const { percent } = getPositiveWeekRatio();
+                return percent !== null ? `${percent}%` : '...';
+              })()}
+            </div>
+            <div className="card-details card-details-row">
+              {(() => {
+                const { positives, negatives, total } = getPositiveWeekRatio();
+                return (
+                  <>
+                    <div>
+                      <span className="value-positive">{positives}</span>
+                      <span>Pozitif</span>
+                    </div>
+                    <div>
+                      <span className="value-negative">{negatives}</span>
+                      <span>Negatif</span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -411,7 +542,8 @@ const Dashboard: React.FC = () => {
         {/* Yatırım Ekle Butonu */}
         <div className="investment-add-section">
           <button 
-            className="investment-add-btn" 
+            className={`investment-add-btn ${!isInvestmentEnabled ? 'disabled' : ''}`} 
+            disabled={!isInvestmentEnabled}
             onClick={() => {
               console.log('🔍 [DASHBOARD] Investment button clicked');
               console.log('🔍 [DASHBOARD] Current showInvestmentPanel state:', showInvestmentPanel);
@@ -419,8 +551,14 @@ const Dashboard: React.FC = () => {
               console.log('🔍 [DASHBOARD] Set showInvestmentPanel to:', !showInvestmentPanel);
             }}
           >
-            <span className="add-icon">+</span>
-            <span className="add-text">Yatırım Ekle</span>
+            {isInvestmentEnabled ? (
+              <>
+                <span className="add-icon">+</span>
+                <span className="add-text">Yatırım Ekle</span>
+              </>
+            ) : (
+              <span className="add-text disabled-message">🔒 Cumartesi günü admin tarafından açılacaktır</span>
+            )}
           </button>
         </div>
 
@@ -544,64 +682,14 @@ const Dashboard: React.FC = () => {
         )}
 
         <div className="dashboard-sections">
-          <div className="section-card">
-            <h3>Son İşlemler</h3>
-            <div className="transaction-list">
-              <div className="transaction-item">
-                <div className="transaction-type buy">Alış</div>
-                <div className="transaction-info">
-                  <div className="transaction-symbol">THYAO</div>
-                  <div className="transaction-amount">100 adet</div>
-                </div>
-                <div className="transaction-details">
-                  <div className="transaction-price">₺45.20</div>
-                  <div className="transaction-time">2 saat önce</div>
-                </div>
-              </div>
-              <div className="transaction-item">
-                <div className="transaction-type sell">Satış</div>
-                <div className="transaction-info">
-                  <div className="transaction-symbol">GARAN</div>
-                  <div className="transaction-amount">50 adet</div>
-                </div>
-                <div className="transaction-details">
-                  <div className="transaction-price">₺32.80</div>
-                  <div className="transaction-time">1 gün önce</div>
-                </div>
-              </div>
-              <div className="transaction-item">
-                <div className="transaction-type buy">Alış</div>
-                <div className="transaction-info">
-                  <div className="transaction-symbol">ASELS</div>
-                  <div className="transaction-amount">200 adet</div>
-                </div>
-                <div className="transaction-details">
-                  <div className="transaction-price">₺28.50</div>
-                  <div className="transaction-time">3 gün önce</div>
-                </div>
-              </div>
-            </div>
+          <div className="section-card clickable" onClick={() => window.open('https://www.tradingview.com/watchlists/194281935/', '_blank', 'noopener,noreferrer')}>
+            <h3>Piyasa Özeti</h3>
+            <span className="external-link-arrow" aria-hidden>↗</span>
           </div>
 
-          <div className="section-card">
-            <h3>Piyasa Özeti</h3>
-            <div className="market-summary">
-              <div className="market-item">
-                <div className="market-name">BIST 100</div>
-                <div className="market-value">₺8,245.30</div>
-                <div className="market-change positive">+1.2%</div>
-              </div>
-              <div className="market-item">
-                <div className="market-name">Dolar/TL</div>
-                <div className="market-value">₺31.85</div>
-                <div className="market-change negative">-0.8%</div>
-              </div>
-              <div className="market-item">
-                <div className="market-name">Altın</div>
-                <div className="market-value">₺2,145.50</div>
-                <div className="market-change positive">+0.5%</div>
-              </div>
-            </div>
+          <div className="section-card clickable" onClick={() => navigate('/gecmis-veriler')}>
+            <h3>Geçmiş Veriler</h3>
+            <span className="external-link-arrow" aria-hidden>↗</span>
           </div>
         </div>
 
