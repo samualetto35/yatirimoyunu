@@ -6,6 +6,15 @@ import './MarketHistory.css';
 const FIXED_COLUMNS: Array<keyof MarketRow> = ['yatirim_araci_kod', 'yatirim_araci', 'baz_cur'];
 const WEEK_PERCENT_COLUMNS: Array<keyof MarketRow> = ['yuzde_t1','yuzde_t2','yuzde_t3','yuzde_t4','yuzde_t5','yuzde_t6','yuzde_t7','yuzde_t8','yuzde_t9'];
 
+const getColumnLabel = (col: keyof MarketRow | string): string => {
+  if (col === 'yatirim_araci_kod') return 'Kod';
+  if (col === 'yatirim_araci') return 'Ad';
+  if (col === 'baz_cur') return 'Kur';
+  const m = String(col).match(/^yuzde_t(\d+)$/);
+  if (m) return `${m[1]}. Hafta`;
+  return String(col);
+};
+
 const MarketHistory: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -106,7 +115,7 @@ const MarketHistory: React.FC = () => {
           </select>
           <select className="week-select" value={selectedWeek} onChange={(e) => setSelectedWeek(e.target.value as keyof MarketRow)}>
             {availableWeeks.map(col => (
-              <option key={String(col)} value={col}>{String(col)}</option>
+              <option key={String(col)} value={col}>{getColumnLabel(col)}</option>
             ))}
           </select>
         </div>
@@ -120,13 +129,13 @@ const MarketHistory: React.FC = () => {
             <tr>
               {FIXED_COLUMNS.map(col => (
                 <th key={col as string} onClick={() => toggleSort(col)}>
-                  {col}
+                  {getColumnLabel(col)}
                   {sortKey === col && <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>}
                 </th>
               ))}
               {selectedWeek && (
                 <th onClick={() => toggleSort(selectedWeek)}>
-                  {String(selectedWeek)}
+                  {getColumnLabel(selectedWeek)}
                   {sortKey === selectedWeek && <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>}
                 </th>
               )}

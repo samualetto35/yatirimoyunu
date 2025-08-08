@@ -60,6 +60,7 @@
 .market-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* enforce truncation */
 }
 
 .market-table thead th {
@@ -70,6 +71,7 @@
   font-weight: 600;
   font-size: 0.92rem;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .market-table tbody td {
@@ -87,8 +89,9 @@
   color: #666;
 }
 
+/* Desktop default widths */
 .market-table th:nth-child(1),
-.market-table td:nth-child(1) { width: 140px; }
+.market-table td:nth-child(1) { width: 110px; }
 .market-table th:nth-child(2),
 .market-table td:nth-child(2) { width: 280px; }
 .market-table th:nth-child(3),
@@ -108,25 +111,33 @@
   }
 }
 
+/* Mobile: keep single row, smaller text, tighter widths */
 @media (max-width: 600px) {
-  .market-table thead {
-    display: none;
+  .market-table thead th, .market-table tbody td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
   }
-  .market-table tbody tr {
-    display: block;
-    border-bottom: 1px solid #eee;
-    padding: 0.5rem 0.75rem;
+  .market-table thead th { font-size: 0.82rem; }
+  /* percentage widths to fit screen incl. optional 4th column */
+  .market-table th:nth-child(1), .market-table td:nth-child(1) { width: 24%; }
+  .market-table th:nth-child(2), .market-table td:nth-child(2) { width: 46%; }
+  .market-table th:nth-child(3), .market-table td:nth-child(3) { width: 15%; }
+  .market-table th:nth-child(4), .market-table td:nth-child(4) { width: 15%; text-align: right; }
+}
+
+/* Desktop defaults (>= 601px) */
+@media (min-width: 601px) {
+  .market-table {
+    table-layout: auto; /* allow natural widths on desktop */
   }
-  .market-table tbody td {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.35rem 0;
-    font-size: 0.9rem;
-  }
-  .market-table tbody td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #666;
+  .market-table th:nth-child(1),
+  .market-table td:nth-child(1) { width: 140px; }
+  .market-table th:nth-child(2),
+  .market-table td:nth-child(2) { width: 360px; }
+  .market-table th:nth-child(3),
+  .market-table td:nth-child(3) { width: 120px; }
+  .market-table thead th, .market-table tbody td {
+    font-size: 0.95rem;
+    padding: 0.75rem 0.9rem;
   }
 } 
