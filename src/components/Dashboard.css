@@ -920,6 +920,7 @@
   border-color: #e0e0e0;
   color: #9aa0a6;
   cursor: not-allowed;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .investment-add-btn.disabled .add-icon,
 .investment-add-btn:disabled .add-icon,
@@ -931,6 +932,7 @@
 .investment-add-btn:disabled:hover {
   transform: none;
   background: #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .investment-add-btn .disabled-message {
