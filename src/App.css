@@ -64,7 +64,7 @@
     margin-bottom: 80px; /* Mobile nav için alan */
     margin-top: 120px; /* Mobile second header için alan */
     padding: 1rem;
-  }
+}
 }
 
 @media (max-width: 600px) {

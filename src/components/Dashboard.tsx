@@ -26,6 +26,14 @@ const Dashboard: React.FC = () => {
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [userEntries, setUserEntries] = useState<any>(null);
 
+  // Tooltip state for Average Weekly Return chart
+  const [avgActivePoint, setAvgActivePoint] = useState<{
+    idx: number;
+    val: number;
+    left: string;
+    bottom: string;
+  } | null>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -846,36 +854,107 @@ const Dashboard: React.FC = () => {
             <div className="chart-container">
               <div className="chart">
                 <div className="chart-axis">
-                  <div className="y-axis">
-                    <span>+15%</span>
-                    <span>+10%</span>
-                    <span>+5%</span>
-                    <span>0%</span>
-                    <span>-5%</span>
-                    <span>-10%</span>
-                  </div>
-                  <div className="chart-area">
-                    <div className="chart-line negative">
-                      <div className="chart-point" style={{ left: '0%', bottom: '50%' }}></div>
-                      <div className="chart-point" style={{ left: '14.28%', bottom: '60%' }}></div>
-                      <div className="chart-point" style={{ left: '28.57%', bottom: '40%' }}></div>
-                      <div className="chart-point" style={{ left: '42.85%', bottom: '70%' }}></div>
-                      <div className="chart-point" style={{ left: '57.14%', bottom: '30%' }}></div>
-                      <div className="chart-point" style={{ left: '71.42%', bottom: '80%' }}></div>
-                      <div className="chart-point" style={{ left: '85.71%', bottom: '20%' }}></div>
-                      <div className="chart-point" style={{ left: '100%', bottom: '90%' }}></div>
-                    </div>
-                    <div className="x-axis">
-                      {xAxisLabels.map((label, idx) => (
-                        <span key={idx}>
-                          {label}
-                          {isMobile() && idx === 7 && (
-                            <span className="x-axis-hafta"> hafta</span>
+                  {(() => {
+                    // Build series from progressState
+                    const raw = progressState ? [
+                      progressState.t0btl,
+                      progressState.t0stl,
+                      progressState.t1stl,
+                      progressState.t2stl,
+                      progressState.t3stl,
+                      progressState.t4stl,
+                      progressState.t5stl,
+                      progressState.t6stl,
+                      progressState.t7stl,
+                    ] : [];
+                    const series = raw.filter(v => v !== null && v !== undefined) as number[];
+                    // Compute percent diffs week-over-week
+                    const diffs = series.length >= 2
+                      ? series.slice(1).map((v, i) => ((v - series[i]) / series[i]) * 100)
+                      : [] as number[];
+                    // Determine y-axis range
+                    const minVal = Math.min(0, ...diffs);
+                    const maxVal = Math.max(0, ...diffs);
+                    const range = Math.max(5, maxVal - minVal);
+                    const pad = Math.max(2.5, range * 0.1);
+                    const yMin = Math.floor((minVal - pad) * 10) / 10;
+                    const yMax = Math.ceil((maxVal + pad) * 10) / 10;
+                    const steps = 5;
+                    const step = (yMax - yMin) / steps;
+                    const yLabels = Array.from({ length: steps + 1 }, (_, i) => yMax - i * step);
+                    // Map to coordinates
+                    const pointCoords = diffs.map((val, idx) => {
+                      const weekIdx = idx + 1; // 1..8
+                      const x = (weekIdx / 8) * 100;
+                      const y = 100 - ((val - yMin) / (yMax - yMin)) * 100;
+                      return { x, y, val, idx: weekIdx - 1 };
+                    });
+                    return (
+                      <>
+                        <div className="y-axis">
+                          {yLabels.map((val, i) => (
+                            <span key={i}>{`${val > 0 ? '+' : ''}${val.toFixed(1)}%`}</span>
+                          ))}
+                        </div>
+                        <div className="chart-area">
+                          <div className="vertical-grid">
+                            <div className="grid-line" style={{ left: '0%' }}></div>
+                            <div className="grid-line" style={{ left: '12.5%' }}></div>
+                            <div className="grid-line" style={{ left: '25%' }}></div>
+                            <div className="grid-line" style={{ left: '37.5%' }}></div>
+                            <div className="grid-line" style={{ left: '50%' }}></div>
+                            <div className="grid-line" style={{ left: '62.5%' }}></div>
+                            <div className="grid-line" style={{ left: '75%' }}></div>
+                            <div className="grid-line" style={{ left: '87.5%' }}></div>
+                          </div>
+                          {/* Zero percent baseline (dotted) */}
+                          {(() => {
+                            const yZero = 100 - ((0 - yMin) / (yMax - yMin)) * 100;
+                            return (
+                              <svg className="chart-svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                                <line x1={0} y1={yZero} x2={100} y2={yZero} stroke="#9aa0a6" strokeWidth="1" strokeDasharray="2,2" opacity="0.9" />
+                              </svg>
+                            );
+                          })()}
+                          {pointCoords.map(({ val, idx, x, y }) => {
+                            const left = `${x}%`;
+                            const bottom = `${100 - y}%`;
+                            return (
+                              <div
+                                key={`avg-pt-${idx}`}
+                                className="chart-point avg-point"
+                                style={{ left, bottom }}
+                                onMouseEnter={() => setAvgActivePoint({ idx, val, left, bottom })}
+                                onMouseLeave={() => setAvgActivePoint(null)}
+                                onTouchStart={() => setAvgActivePoint({ idx, val, left, bottom })}
+                                onTouchEnd={() => setAvgActivePoint(null)}
+                                onClick={() => setAvgActivePoint({ idx, val, left, bottom })}
+                              ></div>
+                            );
+                          })}
+                          {avgActivePoint && (
+                            <div
+                              className="chart-tooltip"
+                              style={{ left: avgActivePoint.left, bottom: `calc(${avgActivePoint.bottom} + 24px)` }}
+                            >
+                              <div className="tooltip-week">{avgActivePoint.idx + 1}. Hafta</div>
+                              <div className="tooltip-value">{`${avgActivePoint.val > 0 ? '+' : ''}${avgActivePoint.val.toFixed(2)}%`}</div>
+                            </div>
                           )}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                          <div className="x-axis">
+                            {xAxisLabels.map((label, idx) => (
+                              <span key={idx}>
+                                {label}
+                                {isMobile() && idx === 7 && (
+                                  <span className="x-axis-hafta"> hafta</span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -894,16 +973,39 @@ const Dashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>0%</td>
-                    <td>+2.5%</td>
-                    <td>-1.2%</td>
-                    <td>+4.8%</td>
-                    <td>-2.1%</td>
-                    <td>+6.3%</td>
-                    <td>-3.4%</td>
-                    <td>+8.2%</td>
-                  </tr>
+                  {(() => {
+                    const raw = progressState ? [
+                      progressState.t0btl,
+                      progressState.t0stl,
+                      progressState.t1stl,
+                      progressState.t2stl,
+                      progressState.t3stl,
+                      progressState.t4stl,
+                      progressState.t5stl,
+                      progressState.t6stl,
+                      progressState.t7stl,
+                    ] : [];
+                    const series = raw.filter(v => v !== null && v !== undefined) as number[];
+                    const diffs = series.length >= 2
+                      ? series.slice(1).map((v, i) => ((v - series[i]) / series[i]) * 100)
+                      : [] as number[];
+                    const cells = Array.from({ length: 8 }, (_, i) => {
+                      const v = diffs[i];
+                      if (v === undefined || Number.isNaN(v)) return (
+                        <td key={i}>-</td>
+                      );
+                      const cls = v > 0 ? 'value-positive' : v < 0 ? 'value-negative' : '';
+                      const text = `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+                      return (
+                        <td key={i} className={cls}>{text}</td>
+                      );
+                    });
+                    return (
+                      <tr>
+                        {cells}
+                      </tr>
+                    );
+                  })()}
                 </tbody>
               </table>
             </div>

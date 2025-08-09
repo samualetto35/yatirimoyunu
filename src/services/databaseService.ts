@@ -249,4 +249,24 @@ export class DatabaseService {
       throw error;
     }
   }
+
+  // Tüm kullanıcıların progress verilerini getir (sıralama için)
+  static async getAllUsersProgress(): Promise<UserProgress[]> {
+    try {
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('*')
+        .order('user_email');
+
+      if (error) {
+        console.error('Error fetching all users progress:', error);
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getAllUsersProgress:', error);
+      throw error;
+    }
+  }
 } 

@@ -1481,3 +1481,12 @@
 .section-card.clickable:hover .external-link-arrow {
   color: #333;
 } 
+
+/* Average weekly return points */
+.avg-point {
+  width: 10px;
+  height: 10px;
+  background: #f59e0b; /* orange-500 */
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+} 

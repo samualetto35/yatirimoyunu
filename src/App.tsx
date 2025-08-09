@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/Header';
 import AuthenticatedHeader from './components/AuthenticatedHeader';
-import Sidebar from './components/Sidebar';
 import Login from './components/Login';
 import Register from './components/Register';
 import VerifyEmail from './components/VerifyEmail';
@@ -11,6 +10,9 @@ import ForgotPassword from './components/ForgotPassword';
 import UserPage from './components/UserPage';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
+import Investments from './components/Investments';
+import Ranking from './components/Ranking';
+import Community from './components/Community';
 import PrivateRoute from './components/PrivateRoute';
 import MarketHistory from './components/MarketHistory';
 import './App.css';
@@ -52,6 +54,21 @@ function AppContent() {
         <Route path="/gecmis-veriler" element={
           <PrivateRoute>
             <MarketHistory />
+          </PrivateRoute>
+        } />
+        <Route path="/investments" element={
+          <PrivateRoute>
+            <Investments />
+          </PrivateRoute>
+        } />
+        <Route path="/ranking" element={
+          <PrivateRoute>
+            <Ranking />
+          </PrivateRoute>
+        } />
+        <Route path="/community" element={
+          <PrivateRoute>
+            <Community />
           </PrivateRoute>
         } />
         <Route path="/user" element={
