@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/Header';
@@ -20,6 +20,11 @@ import './App.css';
 function AppContent() {
   const location = useLocation();
   const { currentUser } = useAuth();
+
+  // Sayfa değiştiğinde scroll'u en üste çek
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Header'ı login, register, verify-email ve forgot-password sayfalarında gizle
   const hideHeader = ["/login", "/register", "/verify-email", "/forgot-password"].includes(location.pathname);
