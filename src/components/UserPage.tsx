@@ -1,6 +1,8 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import './UserPage.css';
+import './IconStyles.css';
+import { LogoutIcon } from './Icons';
 
 const UserPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -72,7 +74,7 @@ const UserPage: React.FC = () => {
 
         <div className="action-buttons">
           <button className="logout-button" onClick={handleLogout}>
-            <span className="button-icon">🚪</span>
+            <LogoutIcon size={16} className="button-icon" />
             Çıkış Yap
           </button>
         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Auth.css';
+import { EyeIcon, EyeOffIcon, ArrowLeftIcon } from './Icons';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,7 +53,10 @@ const Login: React.FC = () => {
 
   return (
     <div className="auth-container auth-bg-login">
-      <button className="back-home-btn" onClick={() => navigate('/')}>⟵ Anasayfaya Dön</button>
+      <button className="back-home-btn" onClick={() => navigate('/')}>
+        <ArrowLeftIcon size={16} />
+        Anasayfaya Dön
+      </button>
       <div className="auth-card">
         <h2>Oturum Aç</h2>
         {error && <div className="error-message">{error}</div>}
@@ -89,7 +93,7 @@ const Login: React.FC = () => {
                 tabIndex={-1}
                 aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
               </button>
             </div>
           </div>

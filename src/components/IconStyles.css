@@ -1,0 +1,116 @@
+/* Icon Enhancement Styles */
+
+/* Navigation Icons */
+.auth-nav-item svg,
+.nav-item svg,
+.mobile-nav-btn svg,
+.mobile-nav-item svg {
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Button Icons */
+.button-icon svg,
+.refresh-icon svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.add-icon svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Mobile Navigation Adjustments */
+.mobile-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-nav-btn svg {
+  margin-right: 0;
+  margin-bottom: 2px;
+}
+
+/* Ranking Medal Adjustments */
+.rank-medal svg {
+  display: block;
+}
+
+/* Show Password Button */
+.show-password-btn svg {
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.show-password-btn:hover svg {
+  color: #495057;
+}
+
+/* Sort Icons */
+.sort-indicator svg {
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Community Feature List */
+.coming-features li svg {
+  margin-right: 8px;
+  vertical-align: middle;
+  color: #007bff;
+}
+
+/* Construction Footer */
+.construction-footer svg {
+  margin-left: 4px;
+  vertical-align: middle;
+  color: #007bff;
+}
+
+/* Disabled Message Icon */
+.disabled-message svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Back Button */
+.back-home-btn svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Profile Button */
+.auth-nav-button svg {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Responsive Icon Sizing */
+@media (max-width: 768px) {
+  .auth-nav-item svg,
+  .mobile-nav-btn svg {
+    margin-right: 4px;
+  }
+  
+  .mobile-nav-btn svg {
+    margin-right: 0;
+  }
+}
+
+/* Icon hover effects */
+.nav-item:hover svg,
+.auth-nav-item:hover svg,
+.mobile-nav-btn:hover svg {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease;
+}
+
+/* Ensure icons don't break layout */
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}

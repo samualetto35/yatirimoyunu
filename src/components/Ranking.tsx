@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { DatabaseService } from '../services/databaseService';
 import './Ranking.css';
+import { GoldMedalIcon, SilverMedalIcon, BronzeMedalIcon } from './Icons';
 
 interface UserRanking {
   user_email: string;
@@ -175,7 +176,9 @@ const Ranking: React.FC = () => {
                   <div className={`rank-display ${user.rank <= 3 ? `rank-${user.rank}` : ''}`}>
                     {user.rank <= 3 ? (
                       <span className="rank-medal">
-                        {user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : '🥉'}
+                        {user.rank === 1 ? <GoldMedalIcon size={28} /> : 
+                         user.rank === 2 ? <SilverMedalIcon size={28} /> : 
+                         <BronzeMedalIcon size={28} />}
                       </span>
                     ) : (
                       <span className="rank-number">{user.rank}</span>

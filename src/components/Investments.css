@@ -1,6 +1,7 @@
 .investments-page {
   min-height: 100vh;
   background: white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .investments-content {

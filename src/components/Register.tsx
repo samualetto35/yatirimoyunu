@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Auth.css';
+import { EyeIcon, EyeOffIcon, ArrowLeftIcon } from './Icons';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -73,7 +74,10 @@ const Register: React.FC = () => {
 
   return (
     <div className="auth-container auth-bg-register">
-      <button className="back-home-btn" onClick={() => navigate('/')}>⟵ Anasayfaya Dön</button>
+      <button className="back-home-btn" onClick={() => navigate('/')}>
+        <ArrowLeftIcon size={16} />
+        Anasayfaya Dön
+      </button>
       <div className="auth-card">
         <h2>Kayıt Ol</h2>
         {error && <div className="error-message">{error}</div>}
@@ -110,7 +114,7 @@ const Register: React.FC = () => {
                 tabIndex={-1}
                 aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
               </button>
             </div>
           </div>
@@ -134,7 +138,7 @@ const Register: React.FC = () => {
                 tabIndex={-1}
                 aria-label={showConfirmPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
               >
-                {showConfirmPassword ? '🙈' : '👁️'}
+                {showConfirmPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
               </button>
             </div>
             {confirmPassword.length > 0 && (

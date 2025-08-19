@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { DatabaseService } from '../services/databaseService';
 import './Dashboard.css';
 import { useNavigate } from 'react-router-dom';
+import { LockIcon, PlusIcon } from './Icons';
 
 const isMobile = () => window.innerWidth <= 768;
 
@@ -80,8 +81,8 @@ const Dashboard: React.FC = () => {
     
     fetchData();
     
-    // 15 saniyede bir otomatik refresh
-    const interval = setInterval(fetchData, 15000);
+    // 1 saatte bir otomatik refresh
+    const interval = setInterval(fetchData, 3600000);
     
     return () => clearInterval(interval);
   }, [currentUser]);
@@ -388,14 +389,13 @@ const Dashboard: React.FC = () => {
     return diffs;
   };
 
-  // Pozitif hafta oranı hesaplama (yüzde)
-  const getPositiveWeekRatio = (): { percent: number | null; positives: number; negatives: number; total: number } => {
-    const diffs = getWeeklyDiffs();
-    if (diffs.length === 0) return { percent: null, positives: 0, negatives: 0, total: 0 };
-    const positives = diffs.filter((d) => d > 0).length;
-    const negatives = diffs.filter((d) => d < 0).length;
-    const percent = Math.round((positives / diffs.length) * 100);
-    return { percent, positives, negatives, total: diffs.length };
+  // Geçen haftanın (temsil edilen haftanın bir önceki) en çok kazanan ve kaybettirenlerini getir
+  const getLastWeekTopMovers = () => {
+    if (!marketData) return null;
+    // admin_week_control tablosundan temsil edilen hafta (1 veya 2 olan) -> representedWeek
+    // Ardından previousWeek = representedWeek - 1
+    // previousWeek < 1 ise geçmiş veri yok
+    return null; // placeholder, render'da async veri çekilecek
   };
 
   const formatSignedCurrency = (value: number): string => {
@@ -431,6 +431,55 @@ const Dashboard: React.FC = () => {
   }
 
   const isInvestmentEnabled = activeWeek > 0;
+  const [lastWeekSummary, setLastWeekSummary] = useState<{
+    previousWeek: number | null;
+    top: Array<{ code: string; name: string; percent: number }>;
+    worst: { code: string; name: string; percent: number } | null;
+    message?: string;
+  }>({ previousWeek: null, top: [], worst: null });
+
+  useEffect(() => {
+    const loadLastWeekMovers = async () => {
+      try {
+        const representedWeek = await DatabaseService.getRepresentedWeek();
+        if (!representedWeek || representedWeek <= 1) {
+          setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Geçmiş veri yok' });
+          return;
+        }
+        const prevWeek = representedWeek - 1;
+        if (!marketData || marketData.length === 0) {
+          const md = await DatabaseService.getMarketData();
+          computeAndSet(md, prevWeek);
+        } else {
+          computeAndSet(marketData, prevWeek);
+        }
+      } catch (e) {
+        console.error('❌ [DASHBOARD] last week movers error:', e);
+        setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Veri alınamadı' });
+      }
+    };
+
+    const computeAndSet = (md: Array<any>, prevWeek: number) => {
+      const percentKey = `yuzde_t${prevWeek}` as keyof typeof md[number];
+      const rows = md
+        .map(r => ({
+          code: r.yatirim_araci_kod,
+          name: r.yatirim_araci,
+          percent: typeof r[percentKey] === 'number' ? (r[percentKey] as number) : 0
+        }))
+        .filter(r => r.percent !== null && r.percent !== undefined);
+      if (rows.length === 0) {
+        setLastWeekSummary({ previousWeek: prevWeek, top: [], worst: null, message: 'Veri yok' });
+        return;
+      }
+      const sorted = [...rows].sort((a, b) => b.percent - a.percent);
+      const top = sorted.slice(0, 3);
+      const worst = sorted[sorted.length - 1];
+      setLastWeekSummary({ previousWeek: prevWeek, top, worst });
+    };
+
+    loadLastWeekMovers();
+  }, [marketData]);
 
   return (
     <div className="dashboard-page">
@@ -519,30 +568,30 @@ const Dashboard: React.FC = () => {
 
           <div className="dashboard-card">
             <div className="card-header">
-              <h3>Pozitif Hafta Oranı</h3>
+              <h3>Geçen Hafta Öne Çıkanlar</h3>
             </div>
             <div className="card-value">
-              {(() => {
-                const { percent } = getPositiveWeekRatio();
-                return percent !== null ? `${percent}%` : '...';
-              })()}
+              {lastWeekSummary.previousWeek ? `${lastWeekSummary.previousWeek}. Hafta` : (lastWeekSummary.message || '...')}
             </div>
-            <div className="card-details card-details-row">
-              {(() => {
-                const { positives, negatives, total } = getPositiveWeekRatio();
-                return (
-                  <>
-                    <div>
-                      <span className="value-positive">{positives}</span>
-                      <span>Pozitif</span>
+            <div className="card-details" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {lastWeekSummary.message ? (
+                <span>{lastWeekSummary.message}</span>
+              ) : (
+                <>
+                  {lastWeekSummary.top.map((it, idx) => (
+                    <div key={it.code + idx} className="value-positive" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{idx + 1}. {it.code}</span>
+                      <span>{it.percent > 0 ? '+' : ''}{it.percent.toFixed(2)}%</span>
                     </div>
-                    <div>
-                      <span className="value-negative">{negatives}</span>
-                      <span>Negatif</span>
+                  ))}
+                  {lastWeekSummary.worst && (
+                    <div className="value-negative" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>En Kötü: {lastWeekSummary.worst.code}</span>
+                      <span>{lastWeekSummary.worst.percent > 0 ? '+' : ''}{lastWeekSummary.worst.percent.toFixed(2)}%</span>
                     </div>
-                  </>
-                );
-              })()}
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -561,11 +610,14 @@ const Dashboard: React.FC = () => {
           >
             {isInvestmentEnabled ? (
               <>
-                <span className="add-icon">+</span>
+                <PlusIcon size={18} className="add-icon" />
                 <span className="add-text">Yatırım Ekle</span>
               </>
             ) : (
-              <span className="add-text disabled-message">🔒 Cumartesi günü admin tarafından açılacaktır</span>
+              <span className="add-text disabled-message">
+                <LockIcon size={16} />
+                Cumartesi günü admin tarafından açılacaktır
+              </span>
             )}
           </button>
         </div>
@@ -660,8 +712,12 @@ const Dashboard: React.FC = () => {
                               type="number"
                               min="0"
                               max="100"
-                              value={percentage}
-                              onChange={(e) => handlePercentageChange(item.id, Number(e.target.value))}
+                              value={percentage === 0 ? '' : percentage}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                const normalized = raw === '' ? 0 : Number(raw.replace(/^0+(?=\d)/, ''));
+                                handlePercentageChange(item.id, normalized);
+                              }}
                               placeholder="%"
                               className={percentage > 0 ? 'has-value' : ''}
                             />

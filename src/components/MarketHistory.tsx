@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../supabase';
 import type { MarketRow } from '../supabase';
 import './MarketHistory.css';
+import { SortUpIcon, SortDownIcon } from './Icons';
 
 const FIXED_COLUMNS: Array<keyof MarketRow> = ['yatirim_araci_kod', 'yatirim_araci', 'baz_cur'];
 const WEEK_PERCENT_COLUMNS: Array<keyof MarketRow> = ['yuzde_t1','yuzde_t2','yuzde_t3','yuzde_t4','yuzde_t5','yuzde_t6','yuzde_t7','yuzde_t8','yuzde_t9'];
@@ -130,13 +131,13 @@ const MarketHistory: React.FC = () => {
               {FIXED_COLUMNS.map(col => (
                 <th key={col as string} onClick={() => toggleSort(col)}>
                   {getColumnLabel(col)}
-                  {sortKey === col && <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>}
+                  {sortKey === col && <span className="sort-indicator">{sortDir === 'asc' ? <SortUpIcon size={12} /> : <SortDownIcon size={12} />}</span>}
                 </th>
               ))}
               {selectedWeek && (
                 <th onClick={() => toggleSort(selectedWeek)}>
                   {getColumnLabel(selectedWeek)}
-                  {sortKey === selectedWeek && <span className="sort-indicator">{sortDir === 'asc' ? '▲' : '▼'}</span>}
+                  {sortKey === selectedWeek && <span className="sort-indicator">{sortDir === 'asc' ? <SortUpIcon size={12} /> : <SortDownIcon size={12} />}</span>}
                 </th>
               )}
             </tr>

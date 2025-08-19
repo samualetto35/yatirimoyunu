@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './AuthenticatedHeader.css';
+import './IconStyles.css';
+import { RefreshIcon, DashboardIcon, PortfolioIcon, TrophyIcon, CommunityIcon, UserIcon } from './Icons';
 
 const AuthenticatedHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -45,24 +47,28 @@ const AuthenticatedHeader: React.FC = () => {
                 className={`auth-nav-item ${isActive('/dashboard') ? 'active' : ''}`} 
                 onClick={() => navigate('/dashboard')}
               >
+                <DashboardIcon size={16} />
                 Dashboard
               </button>
               <button 
                 className={`auth-nav-item ${isActive('/investments') ? 'active' : ''}`} 
                 onClick={() => navigate('/investments')}
               >
+                <PortfolioIcon size={16} />
                 Yatırımlarım
               </button>
               <button 
                 className={`auth-nav-item ${isActive('/ranking') ? 'active' : ''}`} 
                 onClick={() => navigate('/ranking')}
               >
+                <TrophyIcon size={16} />
                 Sıralama
               </button>
               <button 
                 className={`auth-nav-item ${isActive('/community') ? 'active' : ''}`} 
                 onClick={() => navigate('/community')}
               >
+                <CommunityIcon size={16} />
                 Topluluk
               </button>
             </nav>
@@ -70,10 +76,11 @@ const AuthenticatedHeader: React.FC = () => {
 
           <div className="auth-header-right">
             <button className="refresh-minimal" onClick={() => window.location.reload()}>
-              <span className="refresh-icon">↻</span>
+              <RefreshIcon size={16} className="refresh-icon" />
               <span className="refresh-label">Yenile</span>
             </button>
             <button className="auth-nav-button" onClick={() => navigate('/user')}>
+              <UserIcon size={16} />
               Profil
             </button>
             <button className="auth-nav-button logout" onClick={handleLogoutClick}>
@@ -90,7 +97,7 @@ const AuthenticatedHeader: React.FC = () => {
             </div>
             <div className="mobile-actions">
               <button className="refresh-minimal" onClick={() => window.location.reload()}>
-                <span className="refresh-icon">↻</span>
+                <RefreshIcon size={16} className="refresh-icon" />
                 <span className="refresh-label">Yenile</span>
               </button>
               <button className="mobile-action-btn profile" onClick={() => navigate('/user')}>
@@ -107,24 +114,28 @@ const AuthenticatedHeader: React.FC = () => {
               className={`mobile-nav-btn ${isActive('/dashboard') ? 'active' : ''}`} 
               onClick={() => navigate('/dashboard')}
             >
+              <DashboardIcon size={18} />
               <span className="nav-text">Dashboard</span>
             </button>
             <button 
               className={`mobile-nav-btn ${isActive('/investments') ? 'active' : ''}`} 
               onClick={() => navigate('/investments')}
             >
+              <PortfolioIcon size={18} />
               <span className="nav-text">Yatırımlarım</span>
             </button>
             <button 
               className={`mobile-nav-btn ${isActive('/ranking') ? 'active' : ''}`} 
               onClick={() => navigate('/ranking')}
             >
+              <TrophyIcon size={18} />
               <span className="nav-text">Sıralama</span>
             </button>
             <button 
               className={`mobile-nav-btn ${isActive('/community') ? 'active' : ''}`} 
               onClick={() => navigate('/community')}
             >
+              <CommunityIcon size={18} />
               <span className="nav-text">Topluluk</span>
             </button>
           </div>
