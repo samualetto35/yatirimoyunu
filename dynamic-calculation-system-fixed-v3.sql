@@ -15,7 +15,7 @@ DECLARE
     market_percentage DECIMAL(10,4);
     percent_string TEXT;
     final_value DECIMAL(10,2);
-    previous_stl_value DECIMAL(10,2);
+    last_final_value DECIMAL(10,2);
 BEGIN
     -- User progress ve entries kayıtlarını al
     SELECT * INTO user_progress_record 
@@ -34,26 +34,11 @@ BEGIN
     FOR week_number IN 1..8 LOOP
         target_column := 't' || (week_number - 1) || 'stl';
         
-        -- Base value'yu belirle (dinamik SQL yerine CASE kullan)
+        -- Base value'yu belirle (her hafta bir önceki haftanın güncel sonucunu kullan)
         IF week_number = 1 THEN
             base_value := user_progress_record.t0btl;
         ELSE
-            -- Önceki haftanın stl değerini al
-            previous_stl_value := CASE 
-                WHEN week_number = 2 THEN user_progress_record.t0stl
-                WHEN week_number = 3 THEN user_progress_record.t1stl
-                WHEN week_number = 4 THEN user_progress_record.t2stl
-                WHEN week_number = 5 THEN user_progress_record.t3stl
-                WHEN week_number = 6 THEN user_progress_record.t4stl
-                WHEN week_number = 7 THEN user_progress_record.t5stl
-                WHEN week_number = 8 THEN user_progress_record.t6stl
-            END;
-            
-            IF previous_stl_value IS NULL THEN
-                base_value := user_progress_record.t0btl;
-            ELSE
-                base_value := previous_stl_value;
-            END IF;
+            base_value := COALESCE(last_final_value, user_progress_record.t0btl);
         END IF;
         
         -- İlgili percent string'ini al
@@ -100,16 +85,16 @@ BEGIN
             WHERE id = investment_id;
             
             -- Eğer market verisi varsa hesaplamaya ekle
-            IF market_percentage IS NOT NULL THEN
-                total_multiplier := total_multiplier + (investment_percentage * (1 + market_percentage/100));
-            ELSE
-                -- Market verisi yoksa sadece yüzdeyi ekle
-                total_multiplier := total_multiplier + investment_percentage;
+            -- Market verisi yoksa yok say
+            IF market_percentage IS NULL THEN
+                CONTINUE;
             END IF;
+            -- market_percentage % cinsinden; ağırlıklı çarpan topla
+            total_multiplier := total_multiplier + (investment_percentage * (1 + market_percentage/100));
         END LOOP;
         
-        -- Final değeri hesapla (tip dönüşümü ile)
-        final_value := CAST(base_value AS DECIMAL(10,2)) * CAST(total_multiplier AS DECIMAL(10,6));
+        -- Final değeri hesapla ve 2 hane yuvarla
+        final_value := ROUND(CAST(base_value AS DECIMAL(10,2)) * CAST(total_multiplier AS DECIMAL(10,6)), 2);
         
         -- User progress'i güncelle (CASE statement ile)
         CASE target_column
@@ -130,6 +115,9 @@ BEGIN
             WHEN 't7stl' THEN
                 UPDATE user_progress SET t7stl = final_value WHERE user_id = NEW.user_id;
         END CASE;
+
+        -- Sonucu bir sonraki hafta için temel değer yap
+        last_final_value := final_value;
     END LOOP;
     
     RETURN NEW;
@@ -139,14 +127,14 @@ $$ LANGUAGE plpgsql;
 -- User entries güncellendiğinde tetiklenecek trigger
 DROP TRIGGER IF EXISTS trigger_calculate_all_portfolio ON user_entries;
 CREATE TRIGGER trigger_calculate_all_portfolio
-    AFTER UPDATE ON user_entries
+    AFTER INSERT OR UPDATE ON user_entries
     FOR EACH ROW
     EXECUTE FUNCTION calculate_all_portfolio_values();
 
 -- Market verileri güncellendiğinde de tetiklenecek trigger
 DROP TRIGGER IF EXISTS trigger_calculate_all_portfolio_market ON market;
 CREATE TRIGGER trigger_calculate_all_portfolio_market
-    AFTER UPDATE ON market
+    AFTER INSERT OR UPDATE ON market
     FOR EACH ROW
     EXECUTE FUNCTION calculate_all_portfolio_values();
 
