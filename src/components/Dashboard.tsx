@@ -27,6 +27,9 @@ const Dashboard: React.FC = () => {
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [userEntries, setUserEntries] = useState<any>(null);
 
+  // Geçen hafta özet bilgisi (temsil edilen haftanın bir öncesi)
+  // Bu hook yukarıda tek kez tanımlandı; hesaplama aşağıdaki başka useEffect içinde yapılacak
+
   // Tooltip state for Average Weekly Return chart
   const [avgActivePoint, setAvgActivePoint] = useState<{
     idx: number;
@@ -34,6 +37,13 @@ const Dashboard: React.FC = () => {
     left: string;
     bottom: string;
   } | null>(null);
+
+  const [lastWeekSummary, setLastWeekSummary] = useState<{
+    previousWeek: number | null;
+    top: Array<{ code: string; name: string; percent: number }>;
+    worst: { code: string; name: string; percent: number } | null;
+    message?: string;
+  }>({ previousWeek: null, top: [], worst: null });
 
   const navigate = useNavigate();
 
@@ -86,6 +96,49 @@ const Dashboard: React.FC = () => {
     
     return () => clearInterval(interval);
   }, [currentUser]);
+
+  useEffect(() => {
+    const loadLastWeekMovers = async () => {
+      try {
+        const representedWeek = await DatabaseService.getRepresentedWeek();
+        if (!representedWeek || representedWeek <= 1) {
+          setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Geçmiş veri yok' });
+          return;
+        }
+        const prevWeek = representedWeek - 1;
+        if (!marketData || marketData.length === 0) {
+          const md = await DatabaseService.getMarketData();
+          computeAndSet(md, prevWeek);
+        } else {
+          computeAndSet(marketData, prevWeek);
+        }
+      } catch (e) {
+        console.error('❌ [DASHBOARD] last week movers error:', e);
+        setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Veri alınamadı' });
+      }
+    };
+
+    const computeAndSet = (md: Array<any>, prevWeek: number) => {
+      const percentKey = `yuzde_t${prevWeek}` as keyof typeof md[number];
+      const rows = md
+        .map(r => ({
+          code: r.yatirim_araci_kod,
+          name: r.yatirim_araci,
+          percent: typeof r[percentKey] === 'number' ? (r[percentKey] as number) : 0
+        }))
+        .filter(r => r.percent !== null && r.percent !== undefined);
+      if (rows.length === 0) {
+        setLastWeekSummary({ previousWeek: prevWeek, top: [], worst: null, message: 'Veri yok' });
+        return;
+      }
+      const sorted = [...rows].sort((a, b) => b.percent - a.percent);
+      const top = sorted.slice(0, 3);
+      const worst = sorted[sorted.length - 1];
+      setLastWeekSummary({ previousWeek: prevWeek, top, worst });
+    };
+
+    loadLastWeekMovers();
+  }, [marketData]);
 
   // Aktif pozisyonları hesapla
   const getActivePositions = () => {
@@ -431,55 +484,6 @@ const Dashboard: React.FC = () => {
   }
 
   const isInvestmentEnabled = activeWeek > 0;
-  const [lastWeekSummary, setLastWeekSummary] = useState<{
-    previousWeek: number | null;
-    top: Array<{ code: string; name: string; percent: number }>;
-    worst: { code: string; name: string; percent: number } | null;
-    message?: string;
-  }>({ previousWeek: null, top: [], worst: null });
-
-  useEffect(() => {
-    const loadLastWeekMovers = async () => {
-      try {
-        const representedWeek = await DatabaseService.getRepresentedWeek();
-        if (!representedWeek || representedWeek <= 1) {
-          setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Geçmiş veri yok' });
-          return;
-        }
-        const prevWeek = representedWeek - 1;
-        if (!marketData || marketData.length === 0) {
-          const md = await DatabaseService.getMarketData();
-          computeAndSet(md, prevWeek);
-        } else {
-          computeAndSet(marketData, prevWeek);
-        }
-      } catch (e) {
-        console.error('❌ [DASHBOARD] last week movers error:', e);
-        setLastWeekSummary({ previousWeek: null, top: [], worst: null, message: 'Veri alınamadı' });
-      }
-    };
-
-    const computeAndSet = (md: Array<any>, prevWeek: number) => {
-      const percentKey = `yuzde_t${prevWeek}` as keyof typeof md[number];
-      const rows = md
-        .map(r => ({
-          code: r.yatirim_araci_kod,
-          name: r.yatirim_araci,
-          percent: typeof r[percentKey] === 'number' ? (r[percentKey] as number) : 0
-        }))
-        .filter(r => r.percent !== null && r.percent !== undefined);
-      if (rows.length === 0) {
-        setLastWeekSummary({ previousWeek: prevWeek, top: [], worst: null, message: 'Veri yok' });
-        return;
-      }
-      const sorted = [...rows].sort((a, b) => b.percent - a.percent);
-      const top = sorted.slice(0, 3);
-      const worst = sorted[sorted.length - 1];
-      setLastWeekSummary({ previousWeek: prevWeek, top, worst });
-    };
-
-    loadLastWeekMovers();
-  }, [marketData]);
 
   return (
     <div className="dashboard-page">
