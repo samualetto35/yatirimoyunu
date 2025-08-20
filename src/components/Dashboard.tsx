@@ -692,6 +692,27 @@ const Dashboard: React.FC = () => {
                 {totalPercentage < 100 && <span className="warning">%100 olmalı</span>}
               </div>
 
+              {/* Seçili Pariteler Özeti */}
+              {selections.length > 0 && (
+                <div className="selected-summary">
+                  <div className="summary-title">Seçilen Pariteler</div>
+                  <div className="summary-list">
+                    {selections
+                      .filter(s => s.percentage > 0)
+                      .map(sel => {
+                        const item = marketData.find(m => m.id === sel.id);
+                        const code = item?.yatirim_araci_kod || `#${sel.id}`;
+                        return (
+                          <div key={sel.id} className="summary-chip">
+                            <span className="chip-code">{code}</span>
+                            <span className="chip-percent">{sel.percentage}%</span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
               {/* Yatırım Listesi */}
               <div className="investment-list">
                 {loading ? (
