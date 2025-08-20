@@ -137,6 +137,12 @@
   font-size: 1rem;
   color: #343a40;
 }
+.announcement-item h4 .from {
+  color: #adb5bd;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin-left: 6px;
+}
 
 .announcement-item .body {
   margin: 0.35rem 0 0.5rem 0;

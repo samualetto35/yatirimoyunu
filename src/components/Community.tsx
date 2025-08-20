@@ -34,6 +34,7 @@ const Community: React.FC = () => {
   const { currentUser } = useAuth();
   const userId = currentUser?.uid || null;
   const userEmail = currentUser?.email || null;
+  const userIdentity = userEmail || userId || null;
 
   const [activeTab, setActiveTab] = useState<'announcements' | 'chat'>('announcements');
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,7 @@ const Community: React.FC = () => {
   const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
+  const [newChannelName, setNewChannelName] = useState('');
 
   const selectedChannel = useMemo(
     () => channels.find(c => c.id === selectedChannelId) || null,
@@ -72,6 +74,22 @@ const Community: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, selectedChannelId, userId]);
 
+  useEffect(() => {
+    if (!selectedChannelId) return;
+    const channel = supabase.channel(`chat_channel_${selectedChannelId}`)
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'chat_messages',
+        filter: `channel_id=eq.${selectedChannelId}`
+      }, (payload) => {
+        const m = payload.new as Message;
+        setMessages(prev => [...prev, m]);
+        if (m.user_id !== (userIdentity || '')) void fetchChannels();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChannelId, userIdentity]);
+
   const fetchAnnouncements = async () => {
     try {
       setLoading(true);
@@ -84,11 +102,11 @@ const Community: React.FC = () => {
       if (e1) throw e1;
 
       let result: Announcement[] = ann || [];
-      if (userId) {
+      if (userIdentity) {
         const { data: reads, error: e2 } = await supabase
           .from('announcement_reads')
           .select('announcement_id')
-          .eq('user_id', userId);
+          .eq('user_id', userIdentity);
         if (e2) throw e2;
         const readSet = new Set((reads || []).map(r => r.announcement_id));
         result = result.map(a => ({ ...a, is_unread: !readSet.has(a.id) }));
@@ -117,11 +135,11 @@ const Community: React.FC = () => {
   };
 
   const markAnnouncementRead = async (announcementId: number) => {
-    if (!userId) return;
+    if (!userIdentity) return;
     try {
       await supabase
         .from('announcement_reads')
-        .upsert({ announcement_id: announcementId, user_id: userId, read_at: new Date().toISOString() }, { onConflict: 'announcement_id,user_id' });
+        .upsert({ announcement_id: announcementId, user_id: userIdentity, read_at: new Date().toISOString() }, { onConflict: 'announcement_id,user_id' });
       setAnnouncements(prev => prev.map(a => a.id === announcementId ? { ...a, is_unread: false } : a));
     } catch {
       // ignore
@@ -139,11 +157,11 @@ const Community: React.FC = () => {
       if (e1) throw e1;
 
       let result: Channel[] = ch || [];
-      if (userId) {
+      if (userIdentity) {
         const { data: reads } = await supabase
           .from('chat_reads')
           .select('*')
-          .eq('user_id', userId);
+          .eq('user_id', userIdentity);
         const lastReadMap = new Map<number, string>();
         (reads || []).forEach(r => lastReadMap.set(r.channel_id, r.last_read_at));
 
@@ -188,14 +206,14 @@ const Community: React.FC = () => {
   };
 
   const sendMessage = async () => {
-    if (!userId || !selectedChannelId) return;
+    if (!userIdentity || !selectedChannelId) return;
     const content = messageText.trim();
     if (!content) return;
     try {
       setMessageText('');
       const { error: e1 } = await supabase
         .from('chat_messages')
-        .insert({ channel_id: selectedChannelId, user_id: userId, content });
+        .insert({ channel_id: selectedChannelId, user_id: userIdentity, content });
       if (e1) throw e1;
       await fetchMessages(selectedChannelId);
       await markChannelRead(selectedChannelId);
@@ -289,7 +307,7 @@ const Community: React.FC = () => {
                   announcements.map(a => (
                     <div key={a.id} className="announcement-item" onClick={() => markAnnouncementRead(a.id)}>
                       <div className="item-top">
-                        <h4>{a.title}</h4>
+                        <h4>{a.title} {a.created_by && (<span className="from">— {a.created_by}</span>)}</h4>
                         {a.is_unread && <span className="badge-unread">Yeni</span>}
                       </div>
                       <p className="body">{a.body}</p>
@@ -308,6 +326,10 @@ const Community: React.FC = () => {
                 <h2>Grup Mesajları</h2>
               </div>
               <div className="chat-content">
+                <div className="channel-create" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <input type="text" placeholder="Yeni kanal adı" value={newChannelName} onChange={(e) => setNewChannelName(e.target.value)} />
+                  <button onClick={createChannel} disabled={!newChannelName.trim()}>Oluştur</button>
+                </div>
                 <div className="channel-list">
                   {channels.map(c => (
                     <button
@@ -335,7 +357,7 @@ const Community: React.FC = () => {
                       <div className="empty">Mesaj yok</div>
                     )}
                     {messages.map(m => (
-                      <div key={m.id} className={`message-item ${m.user_id === userId ? 'mine' : ''}`}>
+                      <div key={m.id} className={`message-item ${m.user_id === (userIdentity || '') ? 'mine' : ''}`}>
                         <div className="bubble">
                           <div className="text">{m.content}</div>
                           <div className="time">{new Date(m.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
