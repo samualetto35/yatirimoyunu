@@ -79,6 +79,8 @@
   border-radius: 12px;
   padding: 1rem;
   min-height: 540px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .pane-header {
@@ -149,6 +151,41 @@
   color: #868e96;
 }
 
+/* Announcement compose */
+.announcement-compose {
+  border: 1px dashed #dee2e6;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+.announcement-compose input,
+.announcement-compose textarea {
+  width: 100%;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+  background: #fff;
+  box-sizing: border-box;
+}
+.announcement-compose input { margin-bottom: 0.5rem; }
+.announcement-compose textarea { min-height: 90px; resize: vertical; }
+.announcement-compose button {
+  margin-top: 0.5rem;
+  background: #14669A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.announcement-compose button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
 .badge-unread {
   display: inline-flex;
   align-items: center;
@@ -168,6 +205,7 @@
   display: flex;
   gap: 1rem;
   min-height: 420px;
+  overflow: hidden;
 }
 
 .channel-list {
@@ -177,6 +215,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-width: 100%;
 }
 
 .channel-item {
@@ -224,6 +263,7 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-right: 0.25rem;
+  max-width: 100%;
 }
 
 .message-item {
@@ -275,6 +315,7 @@
   border: 1px solid #e9ecef;
   border-radius: 10px;
   font-size: 0.95rem;
+  min-width: 0;
 }
 
 .message-input button {
@@ -426,6 +467,25 @@
 
   .community-header p {
     font-size: 0.9rem;
+  }
+
+  /* Stack chat columns on mobile */
+  .chat-content {
+    flex-direction: column;
+  }
+  .channel-list {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f1f3f5;
+    padding-right: 0;
+    padding-bottom: 0.75rem;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+  .channel-item {
+    flex: 0 0 auto;
+    min-width: 200px;
   }
 
   .construction-card {

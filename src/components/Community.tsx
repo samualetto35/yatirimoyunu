@@ -33,12 +33,16 @@ type Message = {
 const Community: React.FC = () => {
   const { currentUser } = useAuth();
   const userId = currentUser?.uid || null;
+  const userEmail = currentUser?.email || null;
 
   const [activeTab, setActiveTab] = useState<'announcements' | 'chat'>('announcements');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [newAnnTitle, setNewAnnTitle] = useState('');
+  const [newAnnBody, setNewAnnBody] = useState('');
 
   const [channels, setChannels] = useState<Channel[]>([]);
   const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null);
@@ -53,11 +57,12 @@ const Community: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'announcements') {
       void fetchAnnouncements();
+      void checkIsAdmin();
     } else {
       void fetchChannels();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, userId]);
+  }, [activeTab, userId, userEmail]);
 
   useEffect(() => {
     if (activeTab === 'chat' && selectedChannelId) {
@@ -94,6 +99,20 @@ const Community: React.FC = () => {
       setError(e.message || 'Duyurular yüklenemedi');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkIsAdmin = async () => {
+    if (!userEmail) { setIsAdmin(false); return; }
+    try {
+      const { data, error } = await supabase
+        .from('admin_emails')
+        .select('email')
+        .eq('email', userEmail);
+      if (error) throw error;
+      setIsAdmin((data || []).length > 0);
+    } catch {
+      setIsAdmin(false);
     }
   };
 
@@ -186,6 +205,27 @@ const Community: React.FC = () => {
     }
   };
 
+  const createAnnouncement = async () => {
+    if (!isAdmin || !userEmail) return;
+    const title = newAnnTitle.trim();
+    const body = newAnnBody.trim();
+    if (!title || !body) return;
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('announcements')
+        .insert({ title, body, created_by: userEmail });
+      if (error) throw error;
+      setNewAnnTitle('');
+      setNewAnnBody('');
+      await fetchAnnouncements();
+    } catch (e: any) {
+      setError(e.message || 'Duyuru oluşturulamadı');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const markChannelRead = async (channelId: number) => {
     if (!userId) return;
     try {
@@ -222,6 +262,24 @@ const Community: React.FC = () => {
               <div className="pane-header">
                 <h2>Duyurular</h2>
               </div>
+              {isAdmin && (
+                <div className="announcement-compose">
+                  <input
+                    type="text"
+                    placeholder="Başlık"
+                    value={newAnnTitle}
+                    onChange={(e) => setNewAnnTitle(e.target.value)}
+                  />
+                  <textarea
+                    placeholder="Duyuru metni..."
+                    value={newAnnBody}
+                    onChange={(e) => setNewAnnBody(e.target.value)}
+                  />
+                  <button onClick={createAnnouncement} disabled={!newAnnTitle.trim() || !newAnnBody.trim()}>
+                    Duyuru Yayınla
+                  </button>
+                </div>
+              )}
               {loading && <div className="loading">Yükleniyor...</div>}
               {error && <div className="error">{error}</div>}
               <div className="announcement-list">
