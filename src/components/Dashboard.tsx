@@ -490,7 +490,12 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1>Dashboard</h1>
-          <p>Yatırım portföyünüzün genel durumu</p>
+          <p>
+            Yatırım portföyünüzün genel durumu
+            {currentUser?.email && (
+              <span style={{ marginLeft: '8px', color: '#ffffff' }}>— {currentUser.email}</span>
+            )}
+          </p>
         </div>
 
         <div className="dashboard-grid">
@@ -579,18 +584,18 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="card-details" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {lastWeekSummary.message ? (
-                <span>{lastWeekSummary.message}</span>
+                <span style={{ fontSize: '0.85rem', color: '#6c757d' }}>{lastWeekSummary.message}</span>
               ) : (
                 <>
                   {lastWeekSummary.top.map((it, idx) => (
-                    <div key={it.code + idx} className="value-positive" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>{idx + 1}. {it.code}</span>
+                    <div key={it.code + idx} className="value-positive" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                      <span style={{ color: '#495057' }}>{idx + 1}. {it.code}</span>
                       <span>{it.percent > 0 ? '+' : ''}{it.percent.toFixed(2)}%</span>
                     </div>
                   ))}
                   {lastWeekSummary.worst && (
-                    <div className="value-negative" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span>En Kötü: {lastWeekSummary.worst.code}</span>
+                    <div className="value-negative" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                      <span style={{ color: '#495057' }}>En Kötü: {lastWeekSummary.worst.code}</span>
                       <span>{lastWeekSummary.worst.percent > 0 ? '+' : ''}{lastWeekSummary.worst.percent.toFixed(2)}%</span>
                     </div>
                   )}
