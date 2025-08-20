@@ -121,11 +121,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('👤 [AUTH] User UID:', result.user.uid);
       
       if (!result.user.emailVerified) {
-        console.log('⚠️ [AUTH] Email not verified, logging out...');
+        console.log('⚠️ [AUTH] Email not verified, resending verification email...');
+        try {
+          await sendEmailVerification(result.user);
+          console.log('📨 [AUTH] Verification email re-sent');
+        } catch (e) {
+          console.error('❌ [AUTH] Failed to re-send verification email:', (e as any)?.message);
+        }
+        // Oturumu kapat ve özel hata fırlat
         await signOut(auth);
-        const error = new Error('E-posta adresiniz doğrulanmamış. Lütfen e-posta kutunuzu kontrol edin.');
-        (error as any).code = 'auth/email-not-verified';
-        throw error;
+        const err = new Error('E-posta adresiniz doğrulanmamış. Lütfen e-posta kutunuzu kontrol edin.');
+        (err as any).code = 'auth/email-not-verified';
+        throw err;
       }
       
       // Email doğrulandıysa database kayıtları kontrol et ve gerekirse oluştur
@@ -139,39 +146,78 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('user_id', result.user.uid)
         .single();
       
-      if (progressError) {
-        console.log('⚠️ [AUTH] User progress not found in Supabase:', progressError.message);
-        // Kayıt yoksa otomatik oluştur
-        console.log('🔧 [AUTH] Creating user records automatically for verified user...');
-        await createUserRecords(result.user.uid, result.user.email || '');
-        console.log('✅ [AUTH] User records created automatically during login');
-      } else {
-        console.log('✅ [AUTH] User progress found in Supabase:', progressData);
-      }
-      
       const { data: entriesData, error: entriesError } = await supabase
         .from('user_entries')
         .select('*')
         .eq('user_id', result.user.uid)
         .single();
       
-      if (entriesError) {
-        console.log('⚠️ [AUTH] User entries not found in Supabase:', entriesError.message);
-        // Eğer progress var ama entries yoksa, sadece entries oluştur
-        if (!progressError) {
-          console.log('🔧 [AUTH] Creating user entries for existing verified user...');
-          const { error: createEntriesError } = await supabase.rpc('create_user_records_for_firebase_user', {
-            p_user_id: result.user.uid,
-            p_user_email: result.user.email || ''
-          });
-          if (createEntriesError) {
-            console.error('❌ [AUTH] Error creating user entries:', createEntriesError);
-          } else {
-            console.log('✅ [AUTH] User entries created automatically during login');
-          }
+      // Kayıt oluşturma stratejisi: önce RPC, ardından eksik olanları tek tek tamamla
+      if (progressError || entriesError) {
+        console.log('🔧 [AUTH] Ensuring user records exist (progress/entries) ...');
+        // 1) RPC dene
+        const { error: rpcError } = await supabase.rpc('create_user_records_for_firebase_user', {
+          p_user_id: result.user.uid,
+          p_user_email: result.user.email || ''
+        });
+        if (rpcError) {
+          console.warn('⚠️ [AUTH] RPC failed, will try direct inserts if needed:', rpcError.message);
+        }
+
+        // 2) Tek tek doğrula ve eksikleri tamamla
+        const { data: progressCheck } = await supabase
+          .from('user_progress')
+          .select('user_id')
+          .eq('user_id', result.user.uid)
+          .single();
+        if (!progressCheck) {
+          console.log('🔧 [AUTH] Creating missing user_progress directly...');
+          const { error: insertProgErr } = await supabase
+            .from('user_progress')
+            .insert({
+              user_id: result.user.uid,
+              user_email: result.user.email || '',
+              group_name: null,
+              t0btl: 100000,
+              t0stl: null,
+              t1stl: null,
+              t2stl: null,
+              t3stl: null,
+              t4stl: null,
+              t5stl: null,
+              t6stl: null,
+              t7stl: null
+            });
+          if (insertProgErr) console.error('❌ [AUTH] Direct insert user_progress failed:', insertProgErr.message);
+        }
+
+        const { data: entriesCheck } = await supabase
+          .from('user_entries')
+          .select('user_id')
+          .eq('user_id', result.user.uid)
+          .single();
+        if (!entriesCheck) {
+          console.log('🔧 [AUTH] Creating missing user_entries directly...');
+          const { error: insertEntErr } = await supabase
+            .from('user_entries')
+            .insert({
+              user_id: result.user.uid,
+              user_email: result.user.email || '',
+              group_name: null,
+              t0percent: null,
+              t1percent: null,
+              t2percent: null,
+              t3percent: null,
+              t4percent: null,
+              t5percent: null,
+              t6percent: null,
+              t7percent: null,
+              t8percent: null
+            });
+          if (insertEntErr) console.error('❌ [AUTH] Direct insert user_entries failed:', insertEntErr.message);
         }
       } else {
-        console.log('✅ [AUTH] User entries found in Supabase:', entriesData);
+        console.log('✅ [AUTH] User progress and entries found in Supabase');
       }
       
     } catch (error: any) {
