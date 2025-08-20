@@ -224,6 +224,31 @@
   max-width: 100%;
 }
 
+.channel-create {
+  display: flex;
+  gap: 0.5rem;
+}
+.channel-create input[type="text"] {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.channel-create button {
+  padding: 0.5rem 0.9rem;
+  background: #14669A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.channel-create button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
 .channel-item {
   display: flex;
   align-items: center;
@@ -270,6 +295,8 @@
   gap: 0.5rem;
   padding-right: 0.25rem;
   max-width: 100%;
+  min-height: 460px;
+  max-height: 62vh;
 }
 
 .message-item {

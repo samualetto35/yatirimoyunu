@@ -223,6 +223,21 @@ const Community: React.FC = () => {
     }
   };
 
+  const createChannel = async () => {
+    const name = newChannelName.trim();
+    if (!name || !isAdmin || !userEmail) return;
+    try {
+      const { error } = await supabase
+        .from('chat_channels')
+        .insert({ name, created_by: userEmail });
+      if (error) throw error;
+      setNewChannelName('');
+      await fetchChannels();
+    } catch (e: any) {
+      setError(e.message || 'Kanal oluşturulamadı');
+    }
+  };
+
   const createAnnouncement = async () => {
     if (!isAdmin || !userEmail) return;
     const title = newAnnTitle.trim();
