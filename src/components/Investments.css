@@ -285,6 +285,7 @@
 
   .investments-content {
     padding: 1rem;
+    margin-top: 0.85rem;
   }
 
   .investments-header {
@@ -406,6 +407,7 @@
   .investments-content {
     padding: 1rem;
     padding-top: 0.35rem;
+    margin-top: 0.85rem;
   }
 
   .investments-header h1 {

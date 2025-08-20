@@ -26,6 +26,8 @@ const Dashboard: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string>('Tümü');
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [userEntries, setUserEntries] = useState<any>(null);
+  const [isSavingInvestment, setIsSavingInvestment] = useState(false);
+  const [saveModal, setSaveModal] = useState<null | { type: 'success' | 'error'; message: string }>(null);
 
   // Geçen hafta özet bilgisi (temsil edilen haftanın bir öncesi)
   // Bu hook yukarıda tek kez tanımlandı; hesaplama aşağıdaki başka useEffect içinde yapılacak
@@ -334,7 +336,7 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      setLoading(true);
+      setIsSavingInvestment(true);
       setError('');
 
       // Aktif haftayı kontrol et
@@ -354,18 +356,19 @@ const Dashboard: React.FC = () => {
       await DatabaseService.updateUserEntries(currentUser!.uid, {
         [`t${activeWeek - 1}percent`]: formattedSelections
       });
-
-      setSuccess('Yatırım seçiminiz başarıyla kaydedildi!');
+      setSaveModal({ type: 'success', message: 'Yatırım seçiminiz başarıyla kaydedildi!' });
       setTimeout(() => {
         setShowInvestmentPanel(false);
-        setSuccess('');
-      }, 2000);
+        setSaveModal(null);
+      }, 1800);
 
     } catch (err) {
       console.error('❌ [INVESTMENT] Error in handleSubmit:', err);
-      setError(`Yatırım seçimi kaydedilemedi: ${err instanceof Error ? err.message : String(err)}`);
+      const msg = `Yatırım seçimi kaydedilemedi: ${err instanceof Error ? err.message : String(err)}`;
+      setError(msg);
+      setSaveModal({ type: 'error', message: msg });
     } finally {
-      setLoading(false);
+      setIsSavingInvestment(false);
     }
   };
 
@@ -751,6 +754,26 @@ const Dashboard: React.FC = () => {
                 {loading ? 'Kaydediliyor...' : 'Yatırımı Kaydet'}
               </button>
             </div>
+          </div>
+        )}
+
+        {(isSavingInvestment || saveModal) && (
+          <div className="overlay-backdrop">
+            {isSavingInvestment && (
+              <div className="overlay-center">
+                <div className="spinner-lg" />
+                <div className="overlay-text">Kaydediliyor...</div>
+              </div>
+            )}
+            {saveModal && (
+              <div className={`overlay-modal ${saveModal.type}`} role="dialog" aria-modal="true">
+                <div className="modal-title">{saveModal.type === 'success' ? 'Başarılı' : 'Hata'}</div>
+                <div className="modal-body">{saveModal.message}</div>
+                <div className="modal-actions">
+                  <button onClick={() => setSaveModal(null)} className="btn-ok">Tamam</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
